@@ -1,0 +1,23 @@
+# org-sync configuration (swarm-routing/.github tools/org-sync).
+kind = "data"
+title = "benchmarks"
+dual = ["tools/"]
+posture = "the org's benchmark datasets: marker-line runs, their manifests and the verdicts recomputed from them"
+trust_boundary = """
+Contributed datasets. Each run's `manifest.json` pins the immutable
+`ns3-dev:<ver>-<profile>-<sha7>` image (verifiable with `cosign verify`, see
+swarm-routing/ns3-containers' `SECURITY.md`), each protocol's commit, the
+scenario, the seeds and the command. A dataset without a manifest is not
+merged; a merged run is immutable, and a correction is a new run.
+
+**Report privately:** a merged dataset that does not reproduce from its
+manifest, or evidence of edited numbers. An ordinary reproduction difference
+goes in a public issue."""
+limitations = """
+- Reproducibility is to the pinned image digest and the seed, not across CPUs
+  or compilers outside that image."""
+verifying = """
+Recompute a verdict from the raw runs with the `ns3-tool` readers
+(swarm-routing/ns3-tools), and check the image a manifest pins with
+`cosign verify` as ns3-containers' `SECURITY.md` describes. No dataset is
+merged yet."""
