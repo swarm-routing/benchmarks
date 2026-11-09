@@ -3,6 +3,7 @@
 <!-- org-sync:begin badges -->
 [![Licence: GPL-2.0-only, tools/ MIT OR GPL-2.0-only](https://img.shields.io/badge/licence-GPL--2.0--only%2C%20tools%2F%20MIT%20OR%20GPL--2.0--only-blue)](LICENSING.md)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow)](https://www.conventionalcommits.org)
+[![Colony Arena: benchmarks](https://img.shields.io/badge/Colony%20Arena-project%20page-orange)](https://swarm-routing.github.io/arena/benchmarks/)
 <!-- org-sync:end badges -->
 
 The org's immutable benchmark datasets: 20-seed `##RUN##`/`##BENCH##` data,
