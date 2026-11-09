@@ -7,7 +7,7 @@ before changing anything. Org-wide conventions:
 
 ## What this repo is
 
-**Status: empty.** Immutable benchmark datasets for the org: 20-seed
+**Status: empty.** The layout below is the plan; update this file in the PR that creates each part (the format and validator: #3). Immutable benchmark datasets for the org: 20-seed
 `##RUN##`/`##BENCH##` CSVs, paired statistical verdicts and the
 reproducibility manifest of each run (image tag with sha, protocol commits,
 scenario, seeds, command line).
