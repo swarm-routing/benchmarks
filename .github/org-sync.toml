@@ -28,5 +28,4 @@ description = "Immutable, reproducible benchmark datasets for the swarm-routing 
 homepage = "https://swarm-routing.github.io/arena/benchmarks/"
 topics = ["benchmarks", "reproducibility", "datasets", "ns-3", "network-simulation", "routing-protocol", "manet", "statistics"]
 ruleset = "data"
-# The PR-title check is added here once this repository runs it (swarm-routing/.github#117).
-required_checks = ["validate runs", "quality / python", "licence / licence", "check / org-sync"]
+required_checks = ["validate runs", "quality / python", "licence / licence", "check / org-sync", "title / title"]
