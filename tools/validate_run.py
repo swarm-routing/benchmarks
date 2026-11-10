@@ -372,7 +372,7 @@ def run_errors(run_dir):
     for scen in m["scenarios"]:
         rows = []
         for f in m["files"]:
-            if f["kind"] == "cell" and f["scenario"] == scen["name"] and f["path"] in on_disk:
+            if f["kind"] == "cell" and f.get("scenario") == scen["name"] and f["path"] in on_disk:
                 errs += cell_errors(os.path.join(run_dir, f["path"]), f["path"], contract, m, rows)
         per_arm = {}
         for seed, arm, where in rows:
@@ -607,6 +607,11 @@ def self_test():
         "seed not in the manifest",
         "seeds not in the manifest 21",
         cell=lambda m: _cell(m, arms, seeds, extra=["##RUN## 21 ara 1 2 3 4 5"]),
+    )
+    case(
+        "cell without a scenario",
+        "names no scenario of the manifest",
+        lambda m: m["files"][0].pop("scenario"),
     )
     case("arm missing", "no ##RUN## rows for arm aodv", cell=lambda m: _cell(m, ["ara"], seeds))
     case(
