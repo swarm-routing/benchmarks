@@ -1,0 +1,60 @@
+# Copyright (c) 2026 Daniel Joppi (https://github.com/swarm-routing)
+# SPDX-License-Identifier: GPL-2.0-only
+name: Runs
+
+# Every PR: each run under runs/ validates against its manifest
+# (tools/validate_run.py: schema, files and hashes, marker contract, seeds,
+# ##PROV## digests and commits; golden rules 6, 11, 13), and no merged run is
+# edited, deleted or added to (golden rule 10). Plus the validator's own
+# self-test and the org Python lint.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: validate runs
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: '3.13'
+      - name: Validator self-test (fixtures)
+        run: python3 -I tools/validate_run.py --self-test
+      - name: The example manifest validates
+        run: python3 -I tools/validate_run.py manifest schemas/examples/manifest.example.json
+      - name: Every run validates (a directory without a manifest fails)
+        run: python3 -I tools/validate_run.py all
+      - name: No merged run changed
+        if: github.event_name == 'pull_request'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: python3 -I tools/validate_run.py immutable --base "$BASE_SHA"
+      - name: No merged run changed (push to main)
+        if: github.event_name == 'push' && github.event.before != '0000000000000000000000000000000000000000'
+        env:
+          BEFORE: ${{ github.event.before }}
+        run: python3 -I tools/validate_run.py immutable --base "$BEFORE"
+
+  quality:
+    # ruff (org ruff.toml) + the self-test under coverage, report-only.
+    uses: swarm-routing/.github/.github/workflows/reusable-python-ci.yml@main
+    with:
+      paths: tools
+      tests: tools/test_validate_run.py
+      source: tools
+
+  licence:
+    uses: swarm-routing/.github/.github/workflows/reusable-licence-check.yml@main
+    with:
+      dual-roots: 'tools/'
+      core-roots: ''

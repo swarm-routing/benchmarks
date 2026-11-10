@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "campaign": "ara-anchor",
+  "date": "2026-11-20",
+  "base_image": {
+    "ref": "ghcr.io/swarm-routing/ns3-dev:3.48-optimized-1a2b3c4",
+    "digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "ns3_version": "3.48",
+    "profile": "optimized"
+  },
+  "campaign_image": {
+    "ref": "ghcr.io/swarm-routing/ara-ns3-campaign:0123456-bbbbbbb",
+    "digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
+  },
+  "modules": [
+    {
+      "name": "ara",
+      "repo": "swarm-routing/ARA",
+      "commit": "0123456789abcdef0123456789abcdef01234567"
+    },
+    {
+      "name": "swarm-core",
+      "repo": "swarm-routing/ns3-swarm-core",
+      "commit": "1111111111111111111111111111111111111111"
+    },
+    {
+      "name": "routing-bench",
+      "repo": "swarm-routing/ns3-tools",
+      "commit": "2222222222222222222222222222222222222222"
+    }
+  ],
+  "harness": {
+    "program": "routing-compare",
+    "module": "routing-bench"
+  },
+  "scenarios": [
+    {
+      "name": "paper-50n",
+      "arms": [
+        "ara",
+        "aodv"
+      ],
+      "parameters": {
+        "scenario": "paper",
+        "nNodes": 50,
+        "time": 900,
+        "areaX": 1500,
+        "areaY": 300,
+        "speed": 10,
+        "pause": 0,
+        "flows": 10
+      }
+    }
+  ],
+  "preregistration": {
+    "url": "https://github.com/swarm-routing/ARA/issues/5"
+  },
+  "seeds": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20
+  ],
+  "commands": [
+    "routing-compare --scenario=paper --runs=20 --firstRun=1 --nNodes=50 --time=900 --areaX=1500 --areaY=300 --speed=10 --pause=0 --flows=10 --protocols=ara,aodv"
+  ],
+  "markers": {
+    "schema_version": 1
+  },
+  "files": [
+    {
+      "path": "cells/paper-50n.txt",
+      "sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "kind": "cell",
+      "scenario": "paper-50n"
+    }
+  ],
+  "notes": "Example only: every digest and commit here is made up. tools/validate_run.py --self-test builds a run directory around it."
+}

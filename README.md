@@ -8,12 +8,78 @@
 
 The org's immutable benchmark datasets: 20-seed `##RUN##`/`##BENCH##` data,
 paired statistical verdicts, and a reproducibility manifest for every run
-(image digest, protocol commits, scenario, seeds, command). **Status:** empty;
-the first dataset lands with the first protocol anchor.
+(image digest, protocol commits, scenario, seeds, command). **Status:** ready:
+the format and its validator are in place, no run yet; the first dataset lands
+with the first protocol anchor (swarm-routing/ARA#5, swarm-routing/BeeAdHoc#3).
 
 How to work here, for people and AI agents alike: [AGENTS.md](AGENTS.md) has
 the rules and how to build and verify; the org conventions are in
 [CONTRIBUTING.md](https://github.com/swarm-routing/.github/blob/main/CONTRIBUTING.md).
+
+## Layout
+
+```
+runs/<yyyy-mm-dd>-<campaign>/   one run, immutable once merged
+  manifest.json                 what reproduces it (schemas/manifest.schema.json)
+  cells/<cell>.txt              the raw marker lines, as the harness and workflow printed them
+  <preregistration>             the plan, when it is a file here rather than a pinned URL
+verdicts/                       (planned) paired comparison tables, recomputed from runs/ by a script
+schemas/                        the manifest schema and the marker-line contract versions
+tools/validate_run.py           the validator CI runs on every PR
+```
+
+A manifest records (all required unless marked):
+
+| Field | What |
+|-------|------|
+| `campaign`, `date` | the run directory is `<date>-<campaign>` |
+| `base_image` | the `ghcr.io/swarm-routing/ns3-dev:<ver>-optimized-<sha7>` tag (never a rolling tag), its `sha256:` digest, the ns-3 version, `profile: optimized` |
+| `campaign_image` | the image every cell pulled, by ref and digest: `<repo>-ns3-campaign:<commit7>-<basesha7>`, or a release image `<repo>-ns3:<version>-optimized` |
+| `modules` | every module built into that image (protocols, `swarm-core`, `routing-bench`, each arm), with its repository and 40-character commit |
+| `harness` | the program (`routing-compare`) and the module that holds it |
+| `scenarios` | each cell: its name, its arms, its parameters |
+| `preregistration` | the plan, a file in the run or a pinned GitHub URL |
+| `seeds` | the RngRun values, at least 20; every arm of every scenario runs each once |
+| `commands` | the exact command lines |
+| `markers.schema_version` | the marker contract, `schemas/markers/v<N>.json` |
+| `files` | every other file of the directory, with its sha256; a cell names its scenario |
+| `supersedes` (optional) | the run this one corrects and the issue that says why |
+| `notes` (optional) | free text |
+
+[`schemas/examples/manifest.example.json`](schemas/examples/manifest.example.json)
+is a complete example (its digests and commits are made up).
+
+## Adding a run
+
+1. **Pre-register.** Write the plan (scenarios, arms, seeds, the trend
+   expected) as an issue or a file before dispatch.
+2. **Dispatch.** The campaign driver resolves the base `ns3-dev` tag to its
+   digest, builds one campaign image of the commits under test, and runs every
+   cell from that image by digest (swarm-routing/.github#107). Every cell's
+   `##PROV##` line names the base digest, the campaign-image digest and every
+   module commit.
+3. **Collect.** Put each cell's raw output under `runs/<date>-<campaign>/cells/`
+   unedited, and write `manifest.json` listing every file with its sha256.
+4. **Validate.** `python3 -I tools/validate_run.py check runs/<date>-<campaign>`
+   until it prints `OK`.
+5. **PR.** One run per PR. CI validates every run and refuses any change to a
+   merged one.
+
+## Corrections
+
+A merged run is never edited or deleted (golden rule 10); CI fails a PR that
+changes, removes or adds a file in one. A correction is a new run whose
+manifest says what it replaces:
+
+```json
+"supersedes": {
+  "run": "2026-11-20-ara-anchor",
+  "issue": "https://github.com/swarm-routing/benchmarks/issues/<n>"
+}
+```
+
+Open the issue first: it says what was wrong with the old run. Both runs stay
+in the repository.
 
 ## Epics
 

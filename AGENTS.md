@@ -7,23 +7,50 @@ before changing anything. Org-wide conventions:
 
 ## What this repo is
 
-**Status: empty.** The layout below is the plan; update this file in the PR that creates each part (the format and validator: #3). Immutable benchmark datasets for the org: 20-seed
-`##RUN##`/`##BENCH##` CSVs, paired statistical verdicts and the
-reproducibility manifest of each run (image tag with sha, protocol commits,
-scenario, seeds, command line).
+**Status: ready: the format and its validator are in place, no run yet (#3).** Immutable benchmark datasets for the org: the raw marker lines of every
+20-seed run (`##CONFIG##`, `##RUN##`, `##PROV##`, …), paired statistical
+verdicts, and the reproducibility manifest of each run: the base `ns3-dev`
+image by tag and digest, the campaign image by digest, every module commit,
+the harness, the scenarios, the seeds and the exact commands
+(swarm-routing/.github#107).
 
 ```
-runs/<yyyy-mm-dd>-<campaign>/   raw marker lines / CSVs + manifest.json (immutable once merged)
-verdicts/                       paired comparison tables produced by ns3-tool
-schemas/                        the marker-line schema versions the data uses
+runs/<yyyy-mm-dd>-<campaign>/   one run: manifest.json + every file it lists (immutable once merged)
+  manifest.json                 against schemas/manifest.schema.json
+  cells/<cell>.txt              raw marker lines, one file per cell (or per seed slice of one)
+  <preregistration>             the plan, when it is a file and not a pinned URL
+verdicts/                       (planned) paired comparison tables, recomputed from runs/ by ns3-tool
+schemas/manifest.schema.json    the run manifest (JSON Schema; schema_version 1)
+schemas/markers/v<N>.json       the marker-line contract versions the data may use (v1: routing-bench today)
+schemas/examples/               an example manifest that validates (made-up digests and commits)
+tools/validate_run.py           the validator CI runs (+ test_validate_run.py) — MIT OR GPL-2.0-only
+.github/workflows/runs.yml      every PR: self-test, every run validates, no merged run changed, ruff, headers
 ```
 
 ## Build & verify
 
-Validate a dataset before its PR: the `ns3-tool` CLI from
-`swarm-routing/ns3-tools` parses every file and recomputes the verdicts
-(until it exists, AntHocNet's `tools/bench/bench_parse.py` and
-`scenario_check.py results`).
+```bash
+python3 -I tools/validate_run.py --self-test        # every check, on fixtures in a temp dir
+python3 -I tools/validate_run.py all                # every run under runs/
+python3 -I tools/validate_run.py check runs/<dir>   # one run
+python3 -I tools/validate_run.py manifest schemas/examples/manifest.example.json
+python3 -I tools/validate_run.py immutable --base origin/main   # golden rule 10
+ruff check tools && ruff format --check tools       # the org ruff.toml, as reusable-python-ci.yml
+make check                                          # lint, test, headers, org-sync check
+```
+
+A full check enforces the schema; that the directory is `<date>-<campaign>`;
+that every file is listed with its sha256; that every cell parses under the
+marker contract the manifest names (an unknown or truncated `##NAME##` fails);
+that each arm of each scenario ran exactly the manifest's seeds (>= 20); and
+that every `##PROV##` line names the base digest, the campaign-image digest and
+every module commit, and nothing else. The schema keywords the validator
+interprets are a fixed set: a new keyword in the schema fails the self-test
+until the validator enforces it. A change to the manifest's fields bumps its
+`schema_version`; a change to the marker contract is a new
+`schemas/markers/v<N>.json` (ns3-tools golden rule 11). Before a verdict is
+committed, recompute it with the `ns3-tool` readers from
+`swarm-routing/ns3-tools` (golden rule 12).
 
 ## Golden rules (invariants — do not break)
 
@@ -152,11 +179,13 @@ Code says the plugin is missing (it was called
 | Write or review a protocol's paper-fidelity sheet (`docs/fidelity.md`) | `swarm-routing/.github` `tools/fidelity/fidelity.py` | `fidelity-sheet` |
 | Check a diff against the org golden rules before a PR or a review | `swarm-routing/.github` `tools/protocol-review/check_invariants.py` | `protocol-review` |
 | Bring the README, AGENTS/CLAUDE/CONTEXT and docs/ to the org documentation standard | `swarm-routing/.github` `tools/docs-review/check_docs.py` | `docs-review` |
+| Find new papers on a topic, or confirm a reference (Crossref, Semantic Scholar, OpenAlex; free sources only) | `swarm-routing/.github` `tools/lit-search/lit_search.py` | `lit-search` |
 
 A skill only this repository uses lives in its own `.claude/skills/`; a skill
-two repositories need moves to the plugin. Skills that manage the private papers
-library (finding, citing and extracting papers) stay in `swarm-routing/papers`;
-a public skill may point to them, never carry library content. This section is managed by org-sync: add
+two repositories need moves to the plugin. Skills that file, cite and extract
+papers into the private papers library stay in `swarm-routing/papers`; finding
+new papers and confirming a reference is public (`lit-search`). A public skill
+may point to the papers skills, never carry library content. This section is managed by org-sync: add
 a row in `swarm-routing/.github` `templates/agents/skills.md`, not here (an edit
 here is undone by the next `org_sync.py apply`).
 <!-- org-sync:end skills -->
@@ -166,6 +195,9 @@ here is undone by the next `org_sync.py apply`).
 | You want to… | Go to |
 |--------------|-------|
 | Data format and methodology to follow | AntHocNet `docs/benchmarks/{metrics,methodology}.md`, `results/` |
+| The run layout, the manifest, how a run gets here, a correction | README "Adding a run", `schemas/manifest.schema.json`, `tools/validate_run.py` |
+| The marker contract versions | `schemas/markers/`; the emitter: `swarm-routing/ns3-tools` `ns3/routing-bench/`, its versioned contract: swarm-routing/ns3-tools#3 |
+| Why the manifest records digests and every commit | swarm-routing/.github#107 (campaign images built once, cells pulled by digest) |
 | Parsers and statistics | `swarm-routing/ns3-tools` (`ns3-tool compare`) |
 | The org's invariants, labels, issue shape | [`swarm-routing/.github` CONTRIBUTING.md](https://github.com/swarm-routing/.github/blob/main/CONTRIBUTING.md) |
 | The reference implementation and its history | [`danieljoppi/AntHocNet`](https://github.com/danieljoppi/AntHocNet) (`AGENTS.md`, `CONTEXT.md`, `docs/adr/`) |

@@ -25,7 +25,8 @@ build: ## build what this repo ships
 	@echo "make build: nothing to do in this repo (kind data)"
 
 test: ## the fast tests CI runs on every PR
-	@echo "make test: nothing to do in this repo (kind data)"
+	python3 -I tools/validate_run.py --self-test
+	python3 -I tools/validate_run.py all
 
 lint: ## static checks, no changes
 	actionlint
