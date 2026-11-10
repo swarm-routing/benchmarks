@@ -7,7 +7,7 @@ before changing anything. Org-wide conventions:
 
 ## What this repo is
 
-**Status: the format and its validator are in place (#3); one run recorded. This repository records released versions only ([ADR-0002](docs/adr/0002-benchmarks-records-released-versions.md)): a protocol release, a new supported ns-3 release or a tool release starts a run (#24); change tests stay in each protocol repository (swarm-routing/.github#156).** Immutable benchmark datasets for the org: the raw marker lines of every
+**Status: the format and its validator are in place (#3); one run recorded, landed by hand. This repository records released versions only ([ADR-0002](docs/adr/0002-benchmarks-records-released-versions.md)); change tests stay in each protocol repository. Planned (swarm-routing/.github#156): release-triggered runs (#24), suites (#23), the generated overview (#25).** Immutable benchmark datasets for the org: the raw marker lines of every
 20-seed run (`##CONFIG##`, `##RUN##`, `##PROV##`, …), paired statistical
 verdicts, and the reproducibility manifest of each run: the base `ns3-dev`
 image by tag and digest, the campaign image by digest, every module commit,

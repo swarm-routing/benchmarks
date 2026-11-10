@@ -9,12 +9,12 @@
 The org's immutable benchmark datasets: 20-seed `##RUN##`/`##BENCH##` data,
 paired statistical verdicts, and a reproducibility manifest for every run
 (image digest, protocol commits, scenario, seeds, command). It records
-**released versions**: every protocol release, new supported ns-3 release or
-tool release starts a run, and the overview across protocols is generated from
-those runs. Each protocol repository benchmarks its own changes
-([ADR-0002](docs/adr/0002-benchmarks-records-released-versions.md)). **Status:**
-the format and its validator are in place and one run is recorded; the release
-pipeline is swarm-routing/.github#156.
+**released versions**; each protocol repository benchmarks its own changes
+([ADR-0002](docs/adr/0002-benchmarks-records-released-versions.md)).
+**Status:** the format and its validator are in place and one run is recorded,
+landed by hand. Planned (epic swarm-routing/.github#156): a run started by every
+protocol release, new supported ns-3 release or tool release (#24), and the
+overview across protocols generated from those runs (#25).
 
 How to work here, for people and AI agents alike: [AGENTS.md](AGENTS.md) has
 the rules and how to build and verify; the org conventions are in

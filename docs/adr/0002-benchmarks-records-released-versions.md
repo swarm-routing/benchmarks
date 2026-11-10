@@ -34,6 +34,16 @@ The #867 control campaign also showed that a cell has to build a pinned commit. 
    Both are plan files here.
 4. **The overview is generated.** The latest released verdict per protocol and family, and its history across releases, are recomputed from `runs/` by a script. The site's leaderboard reads that output.
 
+## Status of the parts
+
+At acceptance none of the machinery exists yet. Planned, under swarm-routing/.github#156:
+
+- the reusable cell workflow with `source_sha` (swarm-routing/.github#157);
+- the runner (swarm-routing/ns3-tools#81) and each protocol's pipeline;
+- the release-triggered runs (#24), the suites (#23) and the generated overview (#25).
+
+Until these land, runs reach this repository by hand, as the first one did.
+
 ## Consequences
 
 - A protocol's published number always traces to a release tag, an image digest and a recorded run here. A number measured on a branch is never published as the protocol's result.
