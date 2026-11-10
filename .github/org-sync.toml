@@ -29,3 +29,6 @@ homepage = "https://swarm-routing.github.io/arena/benchmarks/"
 topics = ["benchmarks", "reproducibility", "datasets", "ns-3", "network-simulation", "routing-protocol", "manet", "statistics"]
 ruleset = "data"
 required_checks = ["validate runs", "quality / python", "licence / licence", "check / org-sync", "title / title"]
+# Merge through a merge queue (swarm-routing/.github#130); every workflow behind a required
+# check also runs on merge_group.
+merge_queue = true
