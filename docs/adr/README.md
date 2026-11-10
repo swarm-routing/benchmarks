@@ -7,3 +7,4 @@ changes is superseded by a new ADR, not edited. Start from
 | ADR | Decision |
 |-----|----------|
 | [0001](0001-record-architecture-decisions.md) | Record architecture decisions |
+| [0002](0002-benchmarks-records-released-versions.md) | This repository benchmarks released versions; protocol repositories benchmark their changes |
