@@ -34,7 +34,7 @@ A manifest records (all required unless marked):
 |-------|------|
 | `campaign`, `date` | the run directory is `<date>-<campaign>` |
 | `base_image` | the `ghcr.io/swarm-routing/ns3-dev:<ver>-optimized-<sha7>` tag (never a rolling tag), its `sha256:` digest, the ns-3 version, `profile: optimized` |
-| `campaign_image` | the image every cell pulled, by ref and digest: `<repo>-ns3-campaign:<commit7>-<basesha7>`, or a release image `<repo>-ns3:<version>-optimized` |
+| `campaign_image` | the image every cell pulled, by ref and digest: `<repo>-ns3-campaign:<commit7>-<basesha7>` (or with the `-optimized` suffix `reusable-ns3-image.yml` pushes), or a release image `<repo>-ns3:<version>-optimized` |
 | `modules` | every module built into that image (protocols, `swarm-core`, `routing-bench`, each arm), with its repository and 40-character commit |
 | `harness` | the program (`routing-compare`) and the module that holds it |
 | `scenarios` | each cell: its name, its arms, its parameters |
