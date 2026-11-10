@@ -21,3 +21,12 @@ Recompute a verdict from the raw runs with the `ns3-tool` readers
 (swarm-routing/ns3-tools), and check the image a manifest pins with
 `cosign verify` as ns3-containers' `SECURITY.md` describes. No dataset is
 merged yet."""
+
+[settings]
+# GitHub settings as code: swarm-routing/.github tools/repo-settings (swarm-routing/.github#117).
+description = "Immutable, reproducible benchmark datasets for the swarm-routing protocols: 20-seed ns-3 runs, paired statistical verdicts and a manifest per run pinning the image digest, protocol commits, scenario, seeds and command."
+homepage = "https://swarm-routing.github.io/arena/benchmarks/"
+topics = ["benchmarks", "reproducibility", "datasets", "ns-3", "network-simulation", "routing-protocol", "manet", "statistics"]
+ruleset = "data"
+# The PR-title check is added here once this repository runs it (swarm-routing/.github#117).
+required_checks = ["validate runs", "quality / python", "licence / licence", "check / org-sync"]
