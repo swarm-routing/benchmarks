@@ -1,0 +1,23 @@
+# Citation File Format (https://citation-file-format.github.io), seeded by
+# swarm-routing/.github org-sync (`citation = true`); the repository's own once
+# written. Commitizen keeps `version:` in step (`.cz.toml` version_files
+# "CITATION.cff:^version:"); swarm-routing/.github tools/zenodo reads the
+# concept DOI from `doi:` once the first release is archived on Zenodo.
+# A dataset (`type: dataset`, #39): edited after the seed, which writes `software`.
+cff-version: 1.2.0
+message: "If you use these data, please cite the dataset version (its DOI) and the run directory, using the metadata below."
+title: "benchmarks"
+abstract: >-
+  Immutable, reproducible benchmark datasets for the swarm-routing protocols:
+  20-seed ns-3 runs, paired statistical verdicts and a manifest per run
+  pinning the image digest, protocol commits, scenario, seeds and command.
+type: dataset
+authors:
+  - family-names: Joppi
+    given-names: Daniel Henrique
+    orcid: "https://orcid.org/0009-0009-6436-8174"
+version: "0.0.0"
+# The work as a whole; tools/ also MIT OR GPL-2.0-only (LICENSING.md).
+license: GPL-2.0-only
+repository-code: "https://github.com/swarm-routing/benchmarks"
+url: "https://github.com/swarm-routing/benchmarks"

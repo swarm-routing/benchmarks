@@ -16,7 +16,7 @@ ORG_DIR   ?= $(HOME)/.cache/swarm-routing/dotgithub
 ORG_REF   ?= main
 
 .DEFAULT_GOAL := help
-.PHONY: help build test lint format check clean shell ci headers org-sync-check org-tools
+.PHONY: help build test lint format check clean shell ci headers org-sync-check org-tools dist
 
 help: ## list the targets
 	@awk 'BEGIN{FS=":.*## "} /^[a-zA-Z0-9_-]+:.*## /{printf "  %-16s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -27,6 +27,7 @@ build: ## build what this repo ships
 test: ## the fast tests CI runs on every PR
 	python3 -I tools/validate_run.py --self-test
 	python3 -I tools/validate_run.py all
+	python3 -I tools/release/runs_notes.py --self-test
 
 lint: ## static checks, no changes
 	actionlint
@@ -35,7 +36,7 @@ format: ## apply the formatters
 	@echo "make format: nothing to do in this repo (kind data)"
 
 clean: ## remove build outputs
-	@echo "make clean: nothing to do in this repo (kind data)"
+	rm -rf dist
 
 shell: ## an interactive shell in the dev image with this repo at /src
 	@command -v docker >/dev/null || { echo "make shell: docker not found (Docker Desktop, Colima, or docker.io)" >&2; exit 127; }
@@ -54,3 +55,9 @@ org-sync-check: org-tools ## org-managed files match the org templates
 check: lint test headers org-sync-check ## everything CI gates on
 
 ci: check ## exactly what CI runs
+
+# The dataset release asset (#39) for swarm-routing/.github's reusable-release.yml,
+# which sets RELEASE_VERSION; locally it defaults to the version in .cz.toml.
+RELEASE_VERSION ?= $(shell sed -n 's/^version = "\(.*\)"$$/\1/p' .cz.toml)
+dist: ## the release asset in dist/: benchmarks-<ver>.tar.gz (every run validated first)
+	tools/release/dist.sh $(RELEASE_VERSION) dist

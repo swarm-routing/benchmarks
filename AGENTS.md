@@ -24,6 +24,9 @@ schemas/manifest.schema.json    the run manifest (JSON Schema; schema_version 1)
 schemas/markers/v<N>.json       the marker-line contract versions the data may use (v1: routing-bench today)
 schemas/examples/               an example manifest that validates (made-up digests and commits)
 tools/validate_run.py           the validator CI runs (+ test_validate_run.py) — MIT OR GPL-2.0-only
+tools/release/                  the dataset release (#39): dist.sh (`make dist`: benchmarks-<ver>.tar.gz), runs_notes.py
+                                (Commitizen's pre-bump hook: the runs a release adds, with their pins, into CHANGELOG.md) — MIT OR GPL-2.0-only
+.cz.toml, CITATION.cff          SemVer releases through swarm-routing/.github's reusable-release.yml (release.yml); type: dataset
 .github/workflows/runs.yml      every PR: self-test, every run validates, no merged run changed, ruff, headers
 ```
 
@@ -37,7 +40,15 @@ python3 -I tools/validate_run.py manifest schemas/examples/manifest.example.json
 python3 -I tools/validate_run.py immutable --base origin/main   # golden rule 10
 ruff check tools && ruff format --check tools       # the org ruff.toml, as reusable-python-ci.yml
 make check                                          # lint, test, headers, org-sync check
+python3 -I tools/release/runs_notes.py --self-test  # the release notes' runs section, on a fixture repo
+make dist                                           # benchmarks-<ver>.tar.gz in dist/, deterministic
 ```
+
+Releases are SemVer and cut deliberately (README "Releases"): a run PR is
+titled `feat(runs): ...` (a minor), a fix or docs change is a patch, a
+manifest or marker schema_version change is a breaking change (a major). A
+version's scope is the issues carrying its `release:vX.Y.Z` label; when they
+are done, dispatch `release.yml` with mode `bump` and merge the bump PR.
 
 A full check enforces the schema; that the directory is `<date>-<campaign>`;
 that every file is listed with its sha256; that every cell parses under the
@@ -69,7 +80,10 @@ Org-wide (1–9), then this repo's own.
    outside contributor may add their own `Copyright (c) <year> <Name>` line
    beneath the org line, never replace it, and signs off every commit (DCO,
    CONTRIBUTING "Outside contributions"). CI (`reusable-licence-check.yml`)
-   checks it. A new directory gets its row in `LICENSING.md` in the same PR.
+   checks the SPDX line, and the org line's place when a header names more
+   than one holder; a header with a single, other holder (a replaced org line,
+   or third-party code) passes it, so review catches that. A new directory
+   gets its row in `LICENSING.md` in the same PR.
 2. **The licence boundary only goes one way.** GPL code may use the dual
    parts; dual code never pulls GPL-only code in: a `core/` file includes only
    the C++ standard library, other `core/` files and the dual-licensed `core/`
@@ -174,8 +188,11 @@ Org-wide (1–9), then this repo's own.
   merges (CONTRIBUTING "Cutting a release").
 - When a PR falls behind `main`, update it
   (`gh api -X PUT "repos/<owner>/<repo>/pulls/<n>/update-branch"`, with
-  `<owner>/<repo>` the PR's base repository and `<n>` its number) and merge PRs one at a time, each after its CI on the updated branch. Never force-push a
-  branch someone else pushed. A behind `bot/release` PR is the exception:
+  `<owner>/<repo>` the PR's base repository and `<n>` its number) and merge PRs one at a time, each after its CI on the updated branch. A
+  repository with a merge queue (`merge_queue = true` in its `[settings]`)
+  is not updated by hand: enable auto-merge and the queue tests each PR on
+  the latest `main` and merges it (CONTRIBUTING "Merge when CI is green").
+  Never force-push a branch someone else pushed. A behind `bot/release` PR is the exception:
   dispatch the release `bump` again, so the version and changelog are rebuilt
   on the new `main`.
 - **Settings are code.** Repository settings, rulesets, required checks and the
