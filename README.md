@@ -2,6 +2,7 @@
 
 <!-- org-sync:begin badges -->
 [![Release](https://img.shields.io/github/v/release/swarm-routing/benchmarks?sort=semver&cacheSeconds=1800)](https://github.com/swarm-routing/benchmarks/releases)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24145189.svg)](https://doi.org/10.5281/zenodo.24145189)
 [![Cite](https://img.shields.io/badge/cite-CITATION.cff-blue)](CITATION.cff)
 [![Licence: GPL-2.0-only, tools/ MIT OR GPL-2.0-only](https://img.shields.io/badge/licence-GPL--2.0--only%2C%20tools%2F%20MIT%20OR%20GPL--2.0--only-blue)](LICENSING.md)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow)](https://www.conventionalcommits.org)
@@ -139,7 +140,7 @@ metadata), and name the run directory, for example: *swarm-routing benchmarks
 vX.Y.Z, doi:10.5281/zenodo.NNNN, `runs/2026-11-10-anthocnet-aodv-smoke`*. The
 run's `manifest.json` in that version reproduces the number: the image
 digests, the module commits, the scenario, the seeds and the commands. The
-concept DOI (the badge, once the first release is archived) always resolves
+concept DOI (the badge) always resolves
 to the latest version; a number cites a version DOI.
 
 <!-- org-sync:begin citing -->
@@ -147,9 +148,15 @@ to the latest version; a number cites a version DOI.
 
 Versions follow [SemVer](https://semver.org) ([CHANGELOG.md](CHANGELOG.md)). Each release is listed under [Releases](https://github.com/swarm-routing/benchmarks/releases), built by the org's release workflow and archived on [Zenodo](https://zenodo.org) with its own DOI.
 
-To cite this repository, use the “Cite this repository” button (from [CITATION.cff](CITATION.cff)). It has no DOI yet: the concept DOI appears here and in the badge above once Zenodo archives its first release.
+To cite these data, use the “Cite this repository” button (from [CITATION.cff](CITATION.cff)):
 
-Using it in your work? Contributions are welcome, and citing it helps just as much.
+| DOI | resolves to |
+|---|---|
+| [`10.5281/zenodo.24145189`](https://doi.org/10.5281/zenodo.24145189) | **concept DOI**: always the latest release. This is the badge above, and the right citation when you mean this project. |
+
+Each release also has its own **version DOI**, listed on [its Zenodo record](https://doi.org/10.5281/zenodo.24145189): cite that one when you reproduce a number measured at that release.
+
+Using it in your work? Contributions are welcome, and citing the DOI helps just as much.
 <!-- org-sync:end citing -->
 
 ## Epics

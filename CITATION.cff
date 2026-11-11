@@ -1,9 +1,9 @@
 # Citation File Format (https://citation-file-format.github.io), seeded by
-# swarm-routing/.github org-sync (`citation = true`); the repository's own once
+# swarm-routing/.github org-sync (`citation = true`; `citation_type` and
+# `[[references]]` in .github/org-sync.toml); the repository's own once
 # written. Commitizen keeps `version:` in step (`.cz.toml` version_files
 # "CITATION.cff:^version:"); swarm-routing/.github tools/zenodo reads the
 # concept DOI from `doi:` once the first release is archived on Zenodo.
-# A dataset (`type: dataset`, #39): edited after the seed, which writes `software`.
 cff-version: 1.2.0
 message: "If you use these data, please cite the dataset version (its DOI) and the run directory, using the metadata below."
 title: "benchmarks"
@@ -21,3 +21,8 @@ version: "0.1.0"
 license: GPL-2.0-only
 repository-code: "https://github.com/swarm-routing/benchmarks"
 url: "https://github.com/swarm-routing/benchmarks"
+doi: "10.5281/zenodo.24145189"
+identifiers:
+  - type: doi
+    value: "10.5281/zenodo.24145189"
+    description: "Concept DOI: always resolves to the latest released version."
