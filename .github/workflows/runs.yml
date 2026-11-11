@@ -9,6 +9,7 @@ name: Runs
 # self-test and the org Python lint.
 on:
   pull_request:
+  merge_group:  # the merge queue runs the required checks on each group (swarm-routing/.github#130)
   push:
     branches: [main]
 
@@ -40,9 +41,10 @@ jobs:
       - name: Every run validates (a directory without a manifest fails)
         run: python3 -I tools/validate_run.py all
       - name: No merged run changed
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' || github.event_name == 'merge_group'
         env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          # A merge group has no pull_request: it compares with the group's base.
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha }}
         run: python3 -I tools/validate_run.py immutable --base "$BASE_SHA"
       - name: No merged run changed (push to main)
         if: github.event_name == 'push' && github.event.before != '0000000000000000000000000000000000000000'
