@@ -36,6 +36,8 @@ jobs:
           python-version: '3.13'
       - name: Validator self-test (fixtures)
         run: python3 -I tools/validate_run.py --self-test
+      - name: Release-notes self-test (the runs each release adds, #39)
+        run: python3 -I tools/release/runs_notes.py --self-test
       - name: The example manifest validates
         run: python3 -I tools/validate_run.py manifest schemas/examples/manifest.example.json
       - name: Every run validates (a directory without a manifest fails)

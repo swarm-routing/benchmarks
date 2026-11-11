@@ -1,0 +1,46 @@
+# Copyright (c) 2026 Daniel Joppi (https://github.com/swarm-routing)
+# SPDX-License-Identifier: GPL-2.0-only
+name: Release
+
+# The org release pipeline (swarm-routing/.github reusable-release.yml;
+# CONTRIBUTING "Cutting a release" there), #39. A dataset release is cut
+# deliberately, when the issues carrying its `release:vX.Y.Z` label are done:
+#   dispatch `dry-run`  bump, build, attest and verify on the runner only;
+#   dispatch `bump`     open the PR `chore(release): bump version A to B`
+#                       from bot/release (Commitizen, .cz.toml; its pre-bump
+#                       hook writes the runs the release adds, with their
+#                       pinned inputs, into CHANGELOG.md);
+#   merge that PR       the release: `make dist` validates every run and packs
+#                       benchmarks-<ver>.tar.gz (tools/release/dist.sh), then
+#                       SBOM, checksums, signed provenance, the v<ver> tag and
+#                       the GitHub release, whose notes are the version's
+#                       CHANGELOG.md section. Zenodo archives it.
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "dry-run: bump, build, attest and verify on the runner only; bump: open the bump PR (merging it releases)"
+        type: choice
+        options: [dry-run, bump]
+        default: dry-run
+  push:
+    branches: [main]   # the merged bump PR releases; any other push is a no-op
+permissions:
+  contents: read
+# One run per commit at a time, never cancelled (a later run must not replace
+# a merged bump's pending release).
+concurrency:
+  group: release-${{ github.sha }}
+  cancel-in-progress: false
+jobs:
+  release:
+    # Saves a runner on ordinary pushes; the workflow itself checks the PR.
+    if: "${{ github.event_name != 'push' || startsWith(github.event.head_commit.message, 'chore(release): bump version ') }}"
+    permissions: { contents: write, pull-requests: write, id-token: write, attestations: write }
+    uses: swarm-routing/.github/.github/workflows/reusable-release.yml@main
+    with:
+      mode: ${{ inputs.mode }}   # empty on push: release
+    secrets:
+      BOT_APP_ID: ${{ secrets.BOT_APP_ID }}
+      BOT_APP_PRIVATE_KEY: ${{ secrets.BOT_APP_PRIVATE_KEY }}
+      ORG_BOT_TOKEN: ${{ secrets.ORG_BOT_TOKEN }}

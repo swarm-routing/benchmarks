@@ -1,0 +1,20 @@
+# Copyright (c) 2026 Daniel Joppi (https://github.com/swarm-routing)
+# SPDX-License-Identifier: GPL-2.0-only
+# Dataset releases go through swarm-routing/.github's reusable-release.yml
+# (.github/workflows/release.yml; CONTRIBUTING "Cutting a release" there), #39.
+# SemVer (maintainer decision 2026-11-11), from the Conventional Commits since
+# the last tag: a new run is a minor (`feat(runs): ...`), a fix or a docs change
+# a patch, a manifest or marker schema_version change a major (a breaking
+# change, `feat(schemas)!: ...`; while 0.x Commitizen makes it a minor). The
+# first release is v0.1.0. The pre-bump hook writes each release's runs, with
+# every pinned input of their manifests, into its CHANGELOG.md section, which
+# the workflow publishes as the release notes.
+[tool.commitizen]
+name = "cz_conventional_commits"
+version = "0.0.0"
+version_scheme = "semver"
+tag_format = "v$version"
+major_version_zero = true
+update_changelog_on_bump = true
+version_files = ["CITATION.cff:^version:"]
+pre_bump_hooks = ["python3 -I tools/release/runs_notes.py changelog"]

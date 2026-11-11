@@ -1,6 +1,8 @@
 # benchmarks
 
 <!-- org-sync:begin badges -->
+[![Release](https://img.shields.io/github/v/release/swarm-routing/benchmarks?sort=semver&cacheSeconds=1800)](https://github.com/swarm-routing/benchmarks/releases)
+[![Cite](https://img.shields.io/badge/cite-CITATION.cff-blue)](CITATION.cff)
 [![Licence: GPL-2.0-only, tools/ MIT OR GPL-2.0-only](https://img.shields.io/badge/licence-GPL--2.0--only%2C%20tools%2F%20MIT%20OR%20GPL--2.0--only-blue)](LICENSING.md)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow)](https://www.conventionalcommits.org)
 [![Colony Arena: benchmarks](https://img.shields.io/badge/Colony%20Arena-project%20page-orange)](https://swarm-routing.github.io/arena/benchmarks/)
@@ -31,6 +33,8 @@ runs/<yyyy-mm-dd>-<campaign>/   one run, immutable once merged
 verdicts/                       (planned) paired comparison tables, recomputed from runs/ by a script
 schemas/                        the manifest schema and the marker-line contract versions
 tools/validate_run.py           the validator CI runs on every PR
+tools/release/                  the dataset release: dist.sh (`make dist`), runs_notes.py (the runs each release adds)
+CITATION.cff                    how to cite the dataset (type: dataset)
 ```
 
 A manifest records (all required unless marked):
@@ -85,6 +89,54 @@ manifest says what it replaces:
 
 Open the issue first: it says what was wrong with the old run. Both runs stay
 in the repository.
+
+## Releases
+
+The dataset is released in versions, each tagged `vX.Y.Z` and archived on
+Zenodo with its own DOI, so a published number cites the exact version that
+holds its run ([#39](https://github.com/swarm-routing/benchmarks/issues/39)).
+Versions are [SemVer](https://semver.org), computed by Commitizen from the PR
+titles (Conventional Commits) since the last tag:
+
+| Change | PR title | Version |
+|--------|----------|---------|
+| a new run (or a correction, which is a new run) | `feat(runs): <date>-<campaign> ...` | minor |
+| a fix or a docs change (tooling, README, schema docs) | `fix: ...`, `docs: ...` | patch |
+| a manifest `schema_version` or marker-contract version change | `feat(schemas)!: ...` (a breaking change) | major (minor while 0.x) |
+
+**When.** A version is cut deliberately, never on a schedule or on every
+merge: its scope is the set of issues carrying its `release:vX.Y.Z` label, set
+when the issue is opened or triaged. A run that should be citable is scheduled
+into a release by its issue's release label. When that version's issues are
+done, the maintainer (or an agent on their instruction) dispatches the
+`Release` workflow with mode `bump`; it opens `chore(release): bump version A
+to B`, and merging that PR publishes the release (swarm-routing/.github
+CONTRIBUTING "Cutting a release"). v0.1.0 holds the first run,
+`runs/2026-11-10-anthocnet-aodv-smoke`.
+
+**What a release holds.** Its notes list every run it adds, each with its
+directory and every pinned input of its manifest (the base `ns3-dev` image by
+tag and digest, the campaign image digest, every module commit, the harness,
+the scenarios, the seeds and the exact commands), any run it supersedes, and
+the verdicts it adds (`tools/release/runs_notes.py`, Commitizen's pre-bump
+hook, writes them into `CHANGELOG.md`). Its asset `benchmarks-X.Y.Z.tar.gz`
+holds `runs/`, `verdicts/`, `schemas/`, `tools/`, the licence texts, this
+README, `CITATION.cff`, `RUNS.md` (every run with its pins) and
+`SHA256SUMS.txt`; `make dist` builds it, byte for byte the same from the same
+commit, after `tools/validate_run.py all` passes. The release also carries
+`SHA256SUMS`, a CycloneDX SBOM and signed build provenance, with the verify
+commands in its notes. Zenodo archives the whole tagged tree.
+
+## How to cite a number
+
+Cite the dataset version that first contains the run, by its version DOI
+(the release's Zenodo record; [`CITATION.cff`](CITATION.cff) has the
+metadata), and name the run directory, for example: *swarm-routing benchmarks
+vX.Y.Z, doi:10.5281/zenodo.NNNN, `runs/2026-11-10-anthocnet-aodv-smoke`*. The
+run's `manifest.json` in that version reproduces the number: the image
+digests, the module commits, the scenario, the seeds and the commands. The
+concept DOI (the badge, once the first release is archived) always resolves
+to the latest version; a number cites a version DOI.
 
 ## Epics
 

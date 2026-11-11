@@ -24,6 +24,9 @@ schemas/manifest.schema.json    the run manifest (JSON Schema; schema_version 1)
 schemas/markers/v<N>.json       the marker-line contract versions the data may use (v1: routing-bench today)
 schemas/examples/               an example manifest that validates (made-up digests and commits)
 tools/validate_run.py           the validator CI runs (+ test_validate_run.py) — MIT OR GPL-2.0-only
+tools/release/                  the dataset release (#39): dist.sh (`make dist`: benchmarks-<ver>.tar.gz), runs_notes.py
+                                (Commitizen's pre-bump hook: the runs a release adds, with their pins, into CHANGELOG.md) — MIT OR GPL-2.0-only
+.cz.toml, CITATION.cff          SemVer releases through swarm-routing/.github's reusable-release.yml (release.yml); type: dataset
 .github/workflows/runs.yml      every PR: self-test, every run validates, no merged run changed, ruff, headers
 ```
 
@@ -37,7 +40,15 @@ python3 -I tools/validate_run.py manifest schemas/examples/manifest.example.json
 python3 -I tools/validate_run.py immutable --base origin/main   # golden rule 10
 ruff check tools && ruff format --check tools       # the org ruff.toml, as reusable-python-ci.yml
 make check                                          # lint, test, headers, org-sync check
+python3 -I tools/release/runs_notes.py --self-test  # the release notes' runs section, on a fixture repo
+make dist                                           # benchmarks-<ver>.tar.gz in dist/, deterministic
 ```
+
+Releases are SemVer and cut deliberately (README "Releases"): a run PR is
+titled `feat(runs): ...` (a minor), a fix or docs change is a patch, a
+manifest or marker schema_version change is a breaking change (a major). A
+version's scope is the issues carrying its `release:vX.Y.Z` label; when they
+are done, dispatch `release.yml` with mode `bump` and merge the bump PR.
 
 A full check enforces the schema; that the directory is `<date>-<campaign>`;
 that every file is listed with its sha256; that every cell parses under the
