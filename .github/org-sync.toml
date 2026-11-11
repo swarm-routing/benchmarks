@@ -2,16 +2,12 @@
 kind = "data"
 title = "benchmarks"
 dual = ["tools/"]
-# CITATION.cff seed and cite badge (#39). Once Zenodo archives a release: set zenodo_concept = "<record id>"
-# (read from Zenodo), then `org_sync.py reseed CITATION.cff` so CITATION.cff names the DOI, and restore
-# `type: dataset` and the dataset `message:` the seed overwrites (it writes software until swarm-routing/.github#218).
+# CITATION.cff seed and cite badge (#39). The Zenodo concept (read from zenodo.org on 2026-11-11: v0.1.0 archived
+# by `zenodo.py create`, swarm-routing/.github#226).
+zenodo_concept = "24145189"
 citation = true
 # A dataset: CITATION.cff's type and message (swarm-routing/.github#218).
 citation_type = "dataset"
-# The README keeps its own "Releases" and "How to cite a number" (a number cites a
-# dataset version and its run directory), so org-sync's Releases & citing is not
-# rendered here (swarm-routing/.github#228).
-skip = ["README.md#citing"]
 posture = "the org's benchmark datasets: marker-line runs, their manifests and the verdicts recomputed from them"
 trust_boundary = """
 Contributed datasets. Each run's `manifest.json` pins the immutable
