@@ -3,8 +3,10 @@
 # Dataset releases go through swarm-routing/.github's reusable-release.yml
 # (.github/workflows/release.yml; CONTRIBUTING "Cutting a release" there), #39.
 # SemVer (maintainer decision 2026-11-11), from the Conventional Commits since
-# the last tag: a new run is a minor (`feat(runs): ...`), a fix or a docs change
-# a patch, a manifest or marker schema_version change a major (a breaking
+# the last tag: a new run is a minor (`feat(runs): ...`), a fix a patch (a docs
+# change that should ship is titled `fix(docs): ...`: Commitizen's
+# cz_conventional_commits bumps nothing for `docs:`, and its bump map cannot be
+# changed from this file), a manifest or marker schema_version change a major (a breaking
 # change, `feat(schemas)!: ...`; while 0.x Commitizen makes it a minor). The
 # first release is v0.1.0. The pre-bump hook writes each release's runs, with
 # every pinned input of their manifests, into its CHANGELOG.md section, which
