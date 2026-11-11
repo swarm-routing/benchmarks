@@ -11,8 +11,7 @@
                             (base image tag and digest, campaign image digest,
                             module commits, harness, scenarios, seeds,
                             commands) and the verdicts it adds.
-  runs_notes.py index OUT TAG
-                            RUNS.md for the release tarball: every run.
+  runs_notes.py index TAG   RUNS.md for the release tarball, on stdout: every run.
   runs_notes.py --self-test
 
 A run is new in a release when its manifest.json is not in the previous v*
@@ -89,7 +88,7 @@ def new_verdicts(root, prev_tag):
 
 def seeds_text(seeds):
     s = sorted(seeds)
-    if s and s == list(range(s[0], s[-1] + 1)):
+    if s and len(set(s)) == len(s) == s[-1] - s[0] + 1:
         return f"{len(s)} ({s[0]}–{s[-1]})"
     return f"{len(s)} ({', '.join(map(str, s))})"
 
@@ -112,7 +111,13 @@ def describe(root, run, tag):
     h = m["harness"]
     out.append(f"- **Harness:** `{h['program']}` (module `{h['module']}`)")
     for s in m["scenarios"]:
-        out.append(f"- **Scenario `{s['name']}`:** arms {', '.join(f'`{a}`' for a in s['arms'])}")
+        arms = ", ".join(f"`{a}`" for a in s["arms"])
+        params = " ".join(
+            f"{k}={json.dumps(v)}" for k, v in sorted(s.get("parameters", {}).items())
+        )
+        out.append(
+            f"- **Scenario `{s['name']}`:** arms {arms}" + (f"; `{params}`" if params else "")
+        )
     out.append(f"- **Seeds:** {seeds_text(m['seeds'])}")
     pre = m.get("preregistration", {})
     if pre:
@@ -179,11 +184,11 @@ def changelog_hook():
     )
 
 
-def index(out, tag):
+def index(tag):
     lines = [f"# swarm-routing/benchmarks {tag}: the runs", ""]
     for r in run_dirs(ROOT):
         lines += describe(ROOT, r, tag)
-    open(out, "w", encoding="utf-8").write("\n".join(lines))
+    sys.stdout.buffer.write("\n".join(lines).encode("utf-8"))  # whatever the locale
 
 
 def self_test():
@@ -198,7 +203,13 @@ def self_test():
         "campaign_image": {"ref": "x-ns3-campaign:1-2", "digest": "sha256:" + "b" * 64},
         "modules": [{"name": "anthocnet", "repo": "swarm-routing/AntHocNet", "commit": "c" * 40}],
         "harness": {"program": "routing-compare", "module": "routing-bench"},
-        "scenarios": [{"name": "grid", "arms": ["anthocnet", "aodv"]}],
+        "scenarios": [
+            {
+                "name": "grid",
+                "arms": ["anthocnet", "aodv"],
+                "parameters": {"nNodes": 50, "diag": True},
+            }
+        ],
         "preregistration": {"path": "plan.toml"},
         "seeds": list(range(1, 21)),
         "commands": ["routing-compare --runs=20"],
@@ -226,10 +237,14 @@ def self_test():
             and "routing-compare --runs=20" in first
         ), first
         assert "No verdict added" in first, first
+        assert "; `diag=true nNodes=50`" in first, first
         git("tag", "v0.1.0", cwd=d)
         add_run(
             "2026-02-01-b",
-            {"supersedes": {"run": "2026-01-01-a", "issue": "https://x/1"}, "seeds": [1, 3]},
+            {
+                "supersedes": {"run": "2026-01-01-a", "issue": "https://x/1"},
+                "seeds": [1, 3, 10**12],
+            },
         )
         os.makedirs(os.path.join(d, "verdicts"))
         open(os.path.join(d, "verdicts", "v.csv"), "w").write("x\n")
@@ -239,7 +254,7 @@ def self_test():
         ), second
         assert (
             "Supersedes:** `runs/2026-01-01-a`" in second
-            and "2 (1, 3)" in second
+            and "3 (1, 3, 1000000000000)" in second
             and "verdicts/v.csv" in second
         ), second
         git("tag", "v0.2.0", cwd=d)
@@ -262,8 +277,8 @@ def main(argv):
         self_test()
     elif argv[:1] == ["changelog"]:
         changelog_hook()
-    elif argv[:1] == ["index"] and len(argv) == 3:
-        index(argv[1], argv[2])
+    elif argv[:1] == ["index"] and len(argv) == 2:
+        index(argv[1])
     else:
         raise SystemExit(__doc__)
 

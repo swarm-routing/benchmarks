@@ -45,7 +45,8 @@ make dist                                           # benchmarks-<ver>.tar.gz in
 ```
 
 Releases are SemVer and cut deliberately (README "Releases"): a run PR is
-titled `feat(runs): ...` (a minor), a fix or docs change is a patch, a
+titled `feat(runs): ...` (a minor), a fix is a patch (a docs change that
+should ship is `fix(docs): ...`; `docs:` alone releases nothing), a
 manifest or marker schema_version change is a breaking change (a major). A
 version's scope is the issues carrying its `release:vX.Y.Z` label; when they
 are done, dispatch `release.yml` with mode `bump` and merge the bump PR.

@@ -3,7 +3,8 @@ kind = "data"
 title = "benchmarks"
 dual = ["tools/"]
 # CITATION.cff seed and cite badge (#39). Once Zenodo archives a release: set zenodo_concept = "<record id>"
-# (read from Zenodo), then `org_sync.py reseed CITATION.cff` so CITATION.cff names the DOI.
+# (read from Zenodo), then `org_sync.py reseed CITATION.cff` so CITATION.cff names the DOI, and restore
+# `type: dataset` and the dataset `message:` the seed overwrites (it writes software until swarm-routing/.github#218).
 citation = true
 posture = "the org's benchmark datasets: marker-line runs, their manifests and the verdicts recomputed from them"
 trust_boundary = """

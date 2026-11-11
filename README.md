@@ -101,8 +101,12 @@ titles (Conventional Commits) since the last tag:
 | Change | PR title | Version |
 |--------|----------|---------|
 | a new run (or a correction, which is a new run) | `feat(runs): <date>-<campaign> ...` | minor |
-| a fix or a docs change (tooling, README, schema docs) | `fix: ...`, `docs: ...` | patch |
+| a fix, or a docs change that should ship (tooling, README, schema docs) | `fix: ...`, `fix(docs): ...` | patch |
 | a manifest `schema_version` or marker-contract version change | `feat(schemas)!: ...` (a breaking change) | major (minor while 0.x) |
+
+A `docs:`, `ci:` or `chore:` title bumps nothing: Commitizen's
+`cz_conventional_commits` maps only `feat`, `fix`, `refactor`, `perf` and
+breaking changes, so a release made only of those fails to bump.
 
 **When.** A version is cut deliberately, never on a schedule or on every
 merge: its scope is the set of issues carrying its `release:vX.Y.Z` label, set
