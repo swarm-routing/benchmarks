@@ -6,6 +6,12 @@ dual = ["tools/"]
 # (read from Zenodo), then `org_sync.py reseed CITATION.cff` so CITATION.cff names the DOI, and restore
 # `type: dataset` and the dataset `message:` the seed overwrites (it writes software until swarm-routing/.github#218).
 citation = true
+# A dataset: CITATION.cff's type and message (swarm-routing/.github#218).
+citation_type = "dataset"
+# The README keeps its own "Releases" and "How to cite a number" (a number cites a
+# dataset version and its run directory), so org-sync's Releases & citing is not
+# rendered here (swarm-routing/.github#228).
+skip = ["README.md#citing"]
 posture = "the org's benchmark datasets: marker-line runs, their manifests and the verdicts recomputed from them"
 trust_boundary = """
 Contributed datasets. Each run's `manifest.json` pins the immutable
