@@ -11,8 +11,7 @@
                             (base image tag and digest, campaign image digest,
                             module commits, harness, scenarios, seeds,
                             commands) and the verdicts it adds.
-  runs_notes.py index OUT TAG
-                            RUNS.md for the release tarball: every run.
+  runs_notes.py index TAG   RUNS.md for the release tarball, on stdout: every run.
   runs_notes.py --self-test
 
 A run is new in a release when its manifest.json is not in the previous v*
@@ -179,11 +178,11 @@ def changelog_hook():
     )
 
 
-def index(out, tag):
+def index(tag):
     lines = [f"# swarm-routing/benchmarks {tag}: the runs", ""]
     for r in run_dirs(ROOT):
         lines += describe(ROOT, r, tag)
-    open(out, "w", encoding="utf-8").write("\n".join(lines))
+    sys.stdout.write("\n".join(lines))
 
 
 def self_test():
@@ -262,8 +261,8 @@ def main(argv):
         self_test()
     elif argv[:1] == ["changelog"]:
         changelog_hook()
-    elif argv[:1] == ["index"] and len(argv) == 3:
-        index(argv[1], argv[2])
+    elif argv[:1] == ["index"] and len(argv) == 2:
+        index(argv[1])
     else:
         raise SystemExit(__doc__)
 

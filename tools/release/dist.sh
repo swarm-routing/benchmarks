@@ -32,12 +32,12 @@ name="benchmarks-$ver"
 pkg="$tmp/$name"
 mkdir -p "$pkg"
 paths=(runs schemas tools LICENSE LICENSE-MIT LICENSING.md README.md CITATION.cff)
-[ -d "$repo/verdicts" ] && paths+=(verdicts)
+if [[ -d "$repo/verdicts" ]]; then paths+=(verdicts); fi
 for p in CITATION.cff LICENSE README.md; do
-    [ -f "$repo/$p" ] || { echo "dist.sh: $p is missing" >&2; exit 1; }
+    [[ -f "$repo/$p" ]] || { echo "dist.sh: $p is missing" >&2; exit 1; }
 done
 git -C "$repo" ls-files -z -- "${paths[@]}" | (cd "$repo" && xargs -0 cp --parents -t "$pkg")
-python3 -I "$repo/tools/release/runs_notes.py" index "$pkg/RUNS.md" "v$ver"
+python3 -I "$repo/tools/release/runs_notes.py" index "v$ver" > "$pkg/RUNS.md"
 (cd "$pkg" && find . -type f -printf '%P\n' | LC_ALL=C sort | xargs -d '\n' sha256sum) > "$tmp/sums"
 mv "$tmp/sums" "$pkg/SHA256SUMS.txt"
 
