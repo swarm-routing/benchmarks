@@ -142,6 +142,16 @@ digests, the module commits, the scenario, the seeds and the commands. The
 concept DOI (the badge, once the first release is archived) always resolves
 to the latest version; a number cites a version DOI.
 
+<!-- org-sync:begin citing -->
+## Releases & citing
+
+Versions follow [SemVer](https://semver.org) ([CHANGELOG.md](CHANGELOG.md)). Each release is listed under [Releases](https://github.com/swarm-routing/benchmarks/releases), built by the org's release workflow and archived on [Zenodo](https://zenodo.org) with its own DOI.
+
+To cite this repository, use the “Cite this repository” button (from [CITATION.cff](CITATION.cff)). It has no DOI yet: the concept DOI appears here and in the badge above once Zenodo archives its first release.
+
+Using it in your work? Contributions are welcome, and citing it helps just as much.
+<!-- org-sync:end citing -->
+
 ## Epics
 
 <!-- epics:begin -->
