@@ -8,6 +8,8 @@ zenodo_concept = "24145189"
 citation = true
 # A dataset: CITATION.cff's type and message (swarm-routing/.github#218).
 citation_type = "dataset"
+# CITATION.cff's message: a number cites a dataset version and its run directory (swarm-routing/.github#235).
+citation_message = "If you use these data, please cite the dataset version (its DOI) and the run directory, using the metadata below."
 posture = "the org's benchmark datasets: marker-line runs, their manifests and the verdicts recomputed from them"
 trust_boundary = """
 Contributed datasets. Each run's `manifest.json` pins the immutable
