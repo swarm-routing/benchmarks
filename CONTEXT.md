@@ -15,6 +15,18 @@ campaign image per (commits, ns3-dev digest), every cell pulled by digest, and
 the manifest and every `##PROV##` line naming the base digest, the
 campaign-image digest and every module commit.
 
+**Legacy data (#7, ADR-0003, accepted 2026-11-12).** AntHocNet's committed
+`results/cells/` predate that format: rolling image tags with no campaign
+digest, branch commits, short seed counts, a few log-garbled lines, and
+`##COMMON##`/`##MATCH##` rows from before swarm-routing/AntHocNet#459 that
+swarm-routing/AntHocNet#460 invalidates. They are imported apart from the
+runs, under `legacy/anthocnet/`, byte for byte from the release tag that
+published them, each with a legacy manifest that declares what it breaks. The
+first family is static-mesh at v2.6.1 (19 cells: none from before #459; two
+log-garbled lines, one 2-seed cell, one cell over two commits). The other
+families, AntHocNet v2.7.0's `g460` cells (they supersede `grid.md`'s #460
+tables) and `results/campaign/` follow in their own issues.
+
 ## Glossary
 
 ## Open questions

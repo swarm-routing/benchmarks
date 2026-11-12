@@ -7,7 +7,7 @@ before changing anything. Org-wide conventions:
 
 ## What this repo is
 
-**Status: the format and its validator are in place (#3); one run recorded, landed by hand. This repository records released versions only ([ADR-0002](docs/adr/0002-benchmarks-records-released-versions.md)); change tests stay in each protocol repository. Planned (swarm-routing/.github#156): release-triggered runs (#24), suites (#23), the generated overview (#25).** Immutable benchmark datasets for the org: the raw marker lines of every
+**Status: the format and its validator are in place (#3); one run recorded, landed by hand. This repository records released versions only ([ADR-0002](docs/adr/0002-benchmarks-records-released-versions.md)); change tests stay in each protocol repository. Pre-org AntHocNet cells are being imported into `legacy/`, one family per PR, from AntHocNet release tags ([ADR-0003](docs/adr/0003-pre-org-results-are-a-frozen-legacy-archive.md), #7; static-mesh at v2.6.1 first). Planned (swarm-routing/.github#156): release-triggered runs (#24), suites (#23), the generated overview (#25).** Immutable benchmark datasets for the org: the raw marker lines of every
 20-seed run (`##CONFIG##`, `##RUN##`, `##PROV##`, …), paired statistical
 verdicts, and the reproducibility manifest of each run: the base `ns3-dev`
 image by tag and digest, the campaign image by digest, every module commit,
@@ -20,10 +20,14 @@ runs/<yyyy-mm-dd>-<campaign>/   one run: manifest.json + every file it lists (im
   cells/<cell>.txt              raw marker lines, one file per cell (or per seed slice of one)
   <preregistration>             the plan, when it is a file and not a pinned URL
 verdicts/                       (planned) paired comparison tables, recomputed from runs/ by ns3-tool
+legacy/<source>/<cell>/         a pre-org cell (ADR-0003): the file a release tag published + manifest.json; verdicts never read it
+legacy/<source>/INDEX.md        generated from the cells' manifests (import_anthocnet.py index); never edit by hand
 schemas/manifest.schema.json    the run manifest (JSON Schema; schema_version 1)
+schemas/legacy-manifest.schema.json   the legacy cell manifest (its own schema_version 1; provenance pre-org)
 schemas/markers/v<N>.json       the marker-line contract versions the data may use (v1: routing-bench today)
 schemas/examples/               an example manifest that validates (made-up digests and commits)
-tools/validate_run.py           the validator CI runs (+ test_validate_run.py) — MIT OR GPL-2.0-only
+tools/validate_run.py           the validator CI runs (+ test_validate_run.py): runs, legacy cells, immutability — MIT OR GPL-2.0-only
+tools/import_anthocnet.py       imports one family of AntHocNet's results/cells/ from a release tag into legacy/anthocnet/ (+ test_import_anthocnet.py) — MIT OR GPL-2.0-only
 tools/release/                  the dataset release (#39): dist.sh (`make dist`: benchmarks-<ver>.tar.gz), runs_notes.py
                                 (Commitizen's pre-bump hook: the runs a release adds, with their pins, into CHANGELOG.md) — MIT OR GPL-2.0-only
 .cz.toml, CITATION.cff          SemVer releases through swarm-routing/.github's reusable-release.yml (release.yml); type: dataset
@@ -37,7 +41,12 @@ python3 -I tools/validate_run.py --self-test        # every check, on fixtures i
 python3 -I tools/validate_run.py all                # every run under runs/
 python3 -I tools/validate_run.py check runs/<dir>   # one run
 python3 -I tools/validate_run.py manifest schemas/examples/manifest.example.json
-python3 -I tools/validate_run.py immutable --base origin/main   # golden rule 10
+python3 -I tools/validate_run.py legacy all         # every legacy cell and each generated INDEX.md (ADR-0003)
+python3 -I tools/validate_run.py immutable --base origin/main   # golden rule 10 (runs/ and legacy/)
+python3 -I tools/import_anthocnet.py --self-test    # the importer, on a fixture AntHocNet repository
+git clone -q --depth 1 --branch v0.1.0 https://github.com/swarm-routing/ns3-tools ../ns3-tools-v0.1.0   # the pin in AntHocNet's ns3-tools.lock
+python3 -I tools/import_anthocnet.py --src ../AntHocNet --tag v2.6.1 --family static-mesh \
+    --ns3-tools ../ns3-tools-v0.1.0/python          # one family from a release tag (README "Legacy (pre-org) data")
 ruff check tools && ruff format --check tools       # the org ruff.toml, as reusable-python-ci.yml
 make check                                          # lint, test, headers, org-sync check
 python3 -I tools/release/runs_notes.py --self-test  # the release notes' runs section, on a fixture repo
@@ -63,6 +72,13 @@ until the validator enforces it. A change to the manifest's fields bumps its
 `schemas/markers/v<N>.json` (ns3-tools golden rule 11). Before a verdict is
 committed, recompute it with the `ns3-tool` readers from
 `swarm-routing/ns3-tools` (golden rule 12).
+
+Legacy cells are not runs (ADR-0003): they keep the defects they were
+published with, declared in the manifest (`validate_run.py legacy` recomputes
+the defects and the swarm-routing/AntHocNet#460 `invalid` entry and requires
+them equal), and no verdict or overview reads `legacy/`. Import only from a
+release tag, only through `tools/import_anthocnet.py`, one family per PR; a
+newer record that replaces a legacy number names it in its own `supersedes`.
 
 ## Golden rules (invariants — do not break)
 
@@ -257,6 +273,7 @@ here is undone by the next `org_sync.py apply`).
 | Data format and methodology to follow | AntHocNet `docs/benchmarks/{metrics,methodology}.md`, `results/` |
 | The run layout, the manifest, how a run gets here, a correction | README "Adding a run", `schemas/manifest.schema.json`, `tools/validate_run.py` |
 | The marker contract versions | `schemas/markers/`; the emitter: `swarm-routing/ns3-tools` `ns3/routing-bench/`, its versioned contract: swarm-routing/ns3-tools#3 |
+| The pre-org AntHocNet cells: why they are apart, what their manifest records, how to import a family | `docs/adr/0003-pre-org-results-are-a-frozen-legacy-archive.md`, README "Legacy (pre-org) data", `legacy/anthocnet/INDEX.md`, `tools/import_anthocnet.py`; #7 |
 | Why the manifest records digests and every commit | swarm-routing/.github#107 (campaign images built once, cells pulled by digest) |
 | Parsers and statistics | `swarm-routing/ns3-tools` (`ns3-tool compare`) |
 | The org's invariants, labels, issue shape | [`swarm-routing/.github` CONTRIBUTING.md](https://github.com/swarm-routing/.github/blob/main/CONTRIBUTING.md) |
