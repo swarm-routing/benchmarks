@@ -26,3 +26,24 @@ identifiers:
   - type: doi
     value: "10.5281/zenodo.24145189"
     description: "Concept DOI: always resolves to the latest released version."
+references:
+  - type: software
+    title: "AntHocNet for NS-3"
+    authors:
+      - family-names: "Joppi"
+        given-names: "Daniel Henrique"
+    year: 2026
+    publisher:
+      name: "Zenodo"
+    doi: "10.5281/zenodo.20981979"
+    notes: "The protocol module the recorded runs build and measure, at the commit each run's manifest pins."
+  - type: software
+    title: "swarm-routing/ns3-tools: v0.1.0"
+    authors:
+      - family-names: "Joppi"
+        given-names: "Daniel"
+    year: 2026
+    publisher:
+      name: "Zenodo"
+    doi: "10.5281/zenodo.24136068"
+    notes: "The routing-bench harness and campaign image every recorded run comes from, at the commit each run's manifest pins."
