@@ -127,11 +127,14 @@ merged manifest is ever edited.
 
 Import a family (one family per PR, from a release tag; `--ns3-tools` is the
 `python/` directory of the ns3-tools release AntHocNet's `ns3-tools.lock`
-pins, whose `bench_parse` must accept every cell):
+pins, v0.1.0 today, whose `bench_parse` must accept every cell; `--src` is an
+AntHocNet clone with its tags):
 
 ```bash
+git clone -q https://github.com/swarm-routing/AntHocNet ../AntHocNet
+git clone -q --depth 1 --branch v0.1.0 https://github.com/swarm-routing/ns3-tools ../ns3-tools-v0.1.0
 python3 -I tools/import_anthocnet.py --src ../AntHocNet --tag v2.6.1 --family static-mesh \
-    --ns3-tools /path/to/ns3-tools-v0.1.0/python
+    --ns3-tools ../ns3-tools-v0.1.0/python
 python3 -I tools/validate_run.py legacy all
 ```
 

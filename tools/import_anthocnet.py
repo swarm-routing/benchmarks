@@ -48,6 +48,8 @@ DEST = os.path.join(vr.LEGACY_DIR, "anthocnet")
 # AntHocNet #931: docker/README.md "Images of record" (the frozen danieljoppi images).
 IMAGES_REF = "77e71237e178966ee50962f0dd6333b1a9a9a571"
 RELEASE_TAG = re.compile(r"^v[0-9]+\.[0-9]+\.[0-9]+$")
+FAMILY = re.compile(r"^[a-z0-9][a-z0-9-]*$")  # as the legacy schema's family
+HEX40 = re.compile(r"^[0-9a-f]{40}$")
 RECORD_ROW = re.compile(r"^\|\s*`([^`]+)`[^|]*\|\s*`(sha256:[0-9a-f]{64})`")
 READ_DATE = re.compile(r"Digests read from the registry on ([0-9]{4}-[0-9]{2}-[0-9]{2})")
 BENCH_PARSE = (
@@ -106,6 +108,8 @@ def make_ancestry(src, repo, fix, offline):
     def ancestry(commit):
         if commit in cache:
             return cache[commit]
+        if not HEX40.match(commit) or not HEX40.match(fix):
+            return "unresolved", "none"  # never hand git or gh a value that is not a commit
         have = all(
             subprocess.run(
                 ["git", "-C", src, "cat-file", "-e", f"{c}^{{commit}}"], capture_output=True
@@ -149,6 +153,8 @@ def import_family(
 ):
     if not RELEASE_TAG.match(tag):
         raise Refused(f"{tag} is not a release tag vX.Y.Z (ADR-0003)")
+    if not FAMILY.match(family):
+        raise Refused(f"{family!r} is not a family name ([a-z0-9][a-z0-9-]*)")
     commit = git(src, "rev-parse", f"refs/tags/{tag}^{{commit}}").strip()
     names = [
         p
@@ -203,7 +209,7 @@ def import_family(
     vr.legacy_write_index(dest)
     buf = io.StringIO()
     with contextlib.redirect_stdout(buf):
-        ok = vr.legacy_check_all(os.path.dirname(dest))
+        ok = vr.legacy_check_all(os.path.dirname(os.path.abspath(dest)))
     if not ok:
         raise Refused("the written cells do not validate:\n" + buf.getvalue())
     out(f"{len(planned)} cell(s) imported from {repo} {tag} ({commit[:7]}), {family}")
@@ -304,7 +310,7 @@ def self_test():
         src, pydir, fix = _fixture(root)
         dest = os.path.join(root, "legacy", "anthocnet")
         kw = {
-            "dest": dest,
+            "dest": dest + os.sep,  # a trailing separator still validates legacy/
             "repo": "example/ahn",
             "images_ref": "HEAD",
             "fix": fix,
@@ -315,6 +321,8 @@ def self_test():
         n, err = run(src, "v0.1.0", "fam", pydir, **kw)
         expect("a bench_parse rejection refuses the import", err and "fam-reject" in err, err)
         expect("a refused import writes nothing", not os.path.exists(dest))
+        n, err = run(src, "v0.2.0", "../fam", pydir, **kw)
+        expect("a family that is not a name is refused", err and "not a family name" in err, err)
         n, err = run(src, "v0.2.0", "nofam", pydir, **kw)
         expect("an empty family is refused", err and "no results/cells" in err, err)
         n, err = run(src, "v0.2.0", "fam", pydir, **kw)

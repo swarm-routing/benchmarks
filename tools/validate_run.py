@@ -492,6 +492,9 @@ def legacy_scan(text, contract):
                 continue
             rows.setdefault(toks[1], []).append(int(toks[0]))
         if name == "PROV":
+            if not all("=" in t[1:] for t in toks):
+                garbled.append(n)  # contract v1: every ##PROV## field is key=value
+                continue
             prov.append(_kv(body))
         present.add(name)
     return {"garbled": garbled, "present": present, "prov": prov, "rows": rows}
@@ -539,6 +542,11 @@ def legacy_derived(scan):
     if short:
         defects.append({"kind": "seeds-below-20", "detail": ", ".join(short)})
     return measured, images, arms, defects
+
+
+def legacy_missing(scan, contract):
+    """Required markers a cell lacks, other than ##PROV## (a declared no-prov defect)."""
+    return [x for x in contract["required"] if x != "PROV" and x not in scan["present"]]
 
 
 def legacy_invalid(scan, measured):
@@ -590,6 +598,8 @@ def legacy_cell_errors(cell_dir):
         return errs + [f"markers: schema_version {m['markers']['schema_version']} unknown"]
     with open(path, encoding="utf-8", errors="replace") as f:
         scan = legacy_scan(f.read(), contract)
+    for x in legacy_missing(scan, contract):
+        errs.append(f"{fname}: no ##{x}## line (marker contract v{m['markers']['schema_version']})")
     measured, images, arms, defects = legacy_derived(scan)
     got = [{k: e[k] for k in ("commit", "ref", "run_ids")} for e in m["measured"]]
     if got != measured:
@@ -597,8 +607,15 @@ def legacy_cell_errors(cell_dir):
     for e in m["measured"]:
         if (e["contains_fix"] == "unresolved") != (e["ancestry"] == "none"):
             errs.append(f"measured {e['commit'][:7]}: contains_fix and ancestry disagree")
-    want = {(r, ref): d for r, ref, d in images}
-    have = {(i["role"], i["ref"]): i for i in m["images"]}
+    want, have = {}, {}
+    for r, ref, d in images:
+        if (r, ref) in want:
+            errs.append(f"images: ##PROV## names {r} image {ref} with conflicting digests")
+        want[(r, ref)] = d
+    for i in m["images"]:
+        if (i["role"], i["ref"]) in have:
+            errs.append(f"images: {i['role']} image {i['ref']} is listed twice")
+        have[(i["role"], i["ref"])] = i
     for key in sorted(set(want) - set(have)):
         errs.append(f"images: ##PROV## names {key[0]} image {key[1]}, not in the manifest")
     for key in sorted(set(have) - set(want)):
@@ -617,10 +634,7 @@ def legacy_cell_errors(cell_dir):
         errs.append("arms: not the cell's ##RUN## arms and seeds")
     if _norm(m["defects"]) != _norm(defects):
         errs.append(f"defects: declared {_norm(m['defects'])}, found {_norm(defects)}")
-    inv = [{k: e[k] for k in ("markers", "issue")} for e in m["invalid"]]
-    want_inv = [
-        {k: e[k] for k in ("markers", "issue")} for e in legacy_invalid(scan, m["measured"])
-    ]
+    inv, want_inv = m["invalid"], legacy_invalid(scan, m["measured"])
     if _norm(inv) != _norm(want_inv):
         errs.append(f"invalid: declared {_norm(inv)}, the #459 ancestry gives {_norm(want_inv)}")
     source_dir = os.path.dirname(cell_dir)
@@ -714,7 +728,11 @@ def legacy_build(cell, family, source, text, ancestry, records):
     `ancestry(commit)` -> (contains_fix, how); `records`: rolling tag -> its
     digest of record ({digest, source, read}). Raises ValueError when a rolling
     tag has none (an image is never recorded without a digest)."""
-    scan = legacy_scan(text, known_marker_versions()[1])
+    contract = known_marker_versions()[1]
+    scan = legacy_scan(text, contract)
+    missing = legacy_missing(scan, contract)
+    if missing:
+        raise ValueError(f"{cell}: no " + ", ".join(f"##{x}##" for x in missing) + " line")
     measured, images, arms, defects = legacy_derived(scan)
     for e in measured:
         e["contains_fix"], e["ancestry"] = ancestry(e["commit"])
@@ -1028,6 +1046,46 @@ def _legacy_self_test(expect):
         "cannot be verified",
         _legacy_cell_text(post),
         lambda m: m["images"][0].update(verified=True),
+    )
+    case(
+        "invalid reason replaced",
+        "invalid: declared",
+        _legacy_cell_text(pre),
+        lambda m: m["invalid"][0].update(reason="something else"),
+    )
+    case(
+        "image listed twice",
+        "listed twice",
+        _legacy_cell_text(post),
+        lambda m: m["images"].append(dict(m["images"][0], digest="sha256:" + "0" * 64)),
+    )
+    case(
+        "stray PROV token undeclared",
+        "defects: declared",
+        _legacy_cell_text(post).replace("harness=compare", "harness=compare stray"),
+        lambda m: m.update(defects=[]),
+    )
+
+    def strip_runs(d):
+        p = os.path.join(d, "fam-x.txt")
+        with open(p, encoding="utf-8") as f:
+            text = "".join(x for x in f.read().splitlines(True) if not x.startswith("##RUN##"))
+        with open(p, "w", encoding="utf-8") as f:
+            f.write(text)
+        mp = os.path.join(d, MANIFEST)
+        m = load_json(mp)
+        m["source"]["sha256"] = sha256(p)
+        m["arms"] = []
+        with open(mp, "w", encoding="utf-8") as f:
+            json.dump(m, f)
+
+    case("no ##RUN## rows", "no ##RUN## line", _legacy_cell_text(post), after=strip_runs)
+    case(
+        "conflicting PROV digests",
+        "conflicting digests",
+        _legacy_cell_text(post, prov=False)
+        + f"##PROV## commit={post} ref=main run_id=7 image=ghcr.io/x/y@sha256:{'1' * 64}\n"
+        + f"##PROV## commit={post} ref=main run_id=7 image=ghcr.io/x/y@sha256:{'2' * 64}\n",
     )
     case("arms differ", "arms:", _legacy_cell_text(post), lambda m: m["arms"].pop())
     case("not pre-org", "must be", _legacy_cell_text(post), lambda m: m.update(provenance="org"))

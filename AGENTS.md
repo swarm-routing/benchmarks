@@ -44,8 +44,9 @@ python3 -I tools/validate_run.py manifest schemas/examples/manifest.example.json
 python3 -I tools/validate_run.py legacy all         # every legacy cell and each generated INDEX.md (ADR-0003)
 python3 -I tools/validate_run.py immutable --base origin/main   # golden rule 10 (runs/ and legacy/)
 python3 -I tools/import_anthocnet.py --self-test    # the importer, on a fixture AntHocNet repository
+git clone -q --depth 1 --branch v0.1.0 https://github.com/swarm-routing/ns3-tools ../ns3-tools-v0.1.0   # the pin in AntHocNet's ns3-tools.lock
 python3 -I tools/import_anthocnet.py --src ../AntHocNet --tag v2.6.1 --family static-mesh \
-    --ns3-tools <ns3-tools v0.1.0>/python           # one family from a release tag (README "Legacy (pre-org) data")
+    --ns3-tools ../ns3-tools-v0.1.0/python          # one family from a release tag (README "Legacy (pre-org) data")
 ruff check tools && ruff format --check tools       # the org ruff.toml, as reusable-python-ci.yml
 make check                                          # lint, test, headers, org-sync check
 python3 -I tools/release/runs_notes.py --self-test  # the release notes' runs section, on a fixture repo

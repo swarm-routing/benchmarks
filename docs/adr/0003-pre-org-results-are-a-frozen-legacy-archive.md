@@ -78,8 +78,11 @@ The data cannot be held as runs. Each point breaks a rule of
    `seeds-below-20`) and the #460 `invalid` entry from the cell and the
    recorded ancestry, and requires both lists equal. An undeclared defect
    fails, and so does a stale one. Nothing is dropped and nothing is padded.
-6. **Supersession is carried by the newer record.** A later cell or run that
-   replaces a legacy number names it in `supersedes`. A target is either a
+6. **Supersession is carried by the newer record.** A later legacy cell that
+   replaces a legacy number names it in its own `supersedes`. A run under
+   `runs/` cannot do so yet: manifest v1's `supersedes` takes a run name only,
+   so a run naming a legacy cell needs that schema changed first (see
+   Consequences). A target is either a
    legacy cell, or a page at a pinned commit for tables that were never
    committed as cells, such as `grid.md`'s superseded #460 tables. The index
    derives "superseded by" from those entries. No merged manifest is edited to
