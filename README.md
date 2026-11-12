@@ -32,8 +32,11 @@ runs/<yyyy-mm-dd>-<campaign>/   one run, immutable once merged
   cells/<cell>.txt              the raw marker lines, as the harness and workflow printed them
   <preregistration>             the plan, when it is a file here rather than a pinned URL
 verdicts/                       (planned) paired comparison tables, recomputed from runs/ by a script
-schemas/                        the manifest schema and the marker-line contract versions
-tools/validate_run.py           the validator CI runs on every PR
+legacy/<source>/<cell>/         a pre-org cell (ADR-0003): the file a release tag published + manifest.json; never read by verdicts
+legacy/<source>/INDEX.md        the cells of that source, generated from the manifests
+schemas/                        the manifest schemas (runs, legacy cells) and the marker-line contract versions
+tools/validate_run.py           the validator CI runs on every PR (runs, legacy cells, immutability)
+tools/import_anthocnet.py       imports AntHocNet's committed cells from a release tag into legacy/anthocnet/
 tools/release/                  the dataset release: dist.sh (`make dist`), runs_notes.py (the runs each release adds)
 CITATION.cff                    how to cite the dataset (type: dataset)
 ```
@@ -90,6 +93,47 @@ manifest says what it replaces:
 
 Open the issue first: it says what was wrong with the old run. Both runs stay
 in the repository.
+
+## Legacy (pre-org) data
+
+[`legacy/`](legacy/) keeps the numbers measured before this repository's run
+format existed: AntHocNet's committed `results/cells/`, each imported byte for
+byte from the AntHocNet **release tag** that published it
+([ADR-0003](docs/adr/0003-pre-org-results-are-a-frozen-legacy-archive.md), #7).
+They are **not runs and not current results**: `verdicts/` and the overview
+read `runs/` only, so a legacy number never enters a ranking. Anything that
+shows one labels it pre-org.
+
+Each `legacy/<source>/<cell>/manifest.json` follows
+[`schemas/legacy-manifest.schema.json`](schemas/legacy-manifest.schema.json):
+
+| Field | What |
+|-------|------|
+| `provenance` | always `pre-org` |
+| `cell`, `family` | the cell's name (the directory) and its family (the name prefix) |
+| `source` | the repository, release tag, the tag's commit, the path and the file's sha256 |
+| `measured` | each commit the cell's `##PROV##` lines name, with its ref (often a branch), run ids, and whether it contains swarm-routing/AntHocNet#459's fix (`contains_fix`: from git, GitHub's compare API, or `unresolved`) |
+| `images` | each image `##PROV##` names; a rolling tag (e.g. `ghcr.io/danieljoppi/ns3:3.42-opt`) carries its digest of record from AntHocNet `docker/README.md` "Images of record", `verified: false`, where and when that digest was read |
+| `arms` | the arms and the seeds each ran, as found |
+| `defects` | what the cell breaks, declared: `garbled-marker`, `no-prov`, `multi-commit`, `duplicate-seed`, `seeds-below-20` |
+| `invalid` | `##COMMON##`/`##MATCH##` of a cell not known to contain the #459 fix, flagged with swarm-routing/AntHocNet#460 (imported and flagged, never dropped) |
+| `supersedes` (optional) | what this newer record replaces: a legacy cell, or a page at a pinned commit (tables never committed as cells) |
+
+`validate_run.py legacy all` recomputes the defects, the `invalid` entry, the
+arms, the commits and the images from each cell and requires them equal to
+the manifest; `immutable` covers `legacy/` too. Supersession is carried by the
+newer record only, and `INDEX.md` derives "superseded by" from it, so no
+merged manifest is ever edited.
+
+Import a family (one family per PR, from a release tag; `--ns3-tools` is the
+`python/` directory of the ns3-tools release AntHocNet's `ns3-tools.lock`
+pins, whose `bench_parse` must accept every cell):
+
+```bash
+python3 -I tools/import_anthocnet.py --src ../AntHocNet --tag v2.6.1 --family static-mesh \
+    --ns3-tools /path/to/ns3-tools-v0.1.0/python
+python3 -I tools/validate_run.py legacy all
+```
 
 ## Releases
 

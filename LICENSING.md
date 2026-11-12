@@ -8,6 +8,7 @@
 |------|------|---------|
 | `tools/` | standalone scripts (checks, release, data handling) | `MIT OR GPL-2.0-only` |
 | `runs/`, `verdicts/`, `schemas/` | the datasets (as AntHocNet's `results/`) | `GPL-2.0-only` |
+| `legacy/` | pre-org cells imported from AntHocNet's release tags (ADR-0003), with their manifests | `GPL-2.0-only` |
 | `README.md`, `AGENTS.md`, `CLAUDE.md` | docs | `GPL-2.0-only` |
 | everything else | | `GPL-2.0-only` |
 

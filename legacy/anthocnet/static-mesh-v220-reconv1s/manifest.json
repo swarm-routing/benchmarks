@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "provenance": "pre-org",
+  "cell": "static-mesh-v220-reconv1s",
+  "family": "static-mesh",
+  "source": {
+    "repo": "swarm-routing/AntHocNet",
+    "tag": "v2.6.1",
+    "commit": "7faa3f9043a18d14913501a1d053201808c6041d",
+    "path": "results/cells/static-mesh-v220-reconv1s.txt",
+    "sha256": "369d61ecc19962049abc6409884f5ca2663aafea9ef74b296efa91c0bb66a07f"
+  },
+  "measured": [
+    {
+      "commit": "8da0fe27fffa7bd3ca1a72307444e69595f7a34a",
+      "ref": "main",
+      "run_ids": [
+        38915697750
+      ],
+      "contains_fix": true,
+      "ancestry": "git"
+    }
+  ],
+  "images": [
+    {
+      "role": "run",
+      "ref": "ghcr.io/danieljoppi/ns3:3.42-opt",
+      "digest": "sha256:af6b50155528164de33764f059a2736d31bf4cca1c4778009c93fb6620ddc95e",
+      "verified": false,
+      "digest_source": "https://github.com/swarm-routing/AntHocNet/blob/77e71237e178966ee50962f0dd6333b1a9a9a571/docker/README.md",
+      "digest_read": "2026-11-11"
+    }
+  ],
+  "arms": [
+    {
+      "arm": "anthocnet",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20
+      ]
+    }
+  ],
+  "markers": {
+    "schema_version": 1
+  },
+  "defects": [],
+  "invalid": []
+}
