@@ -7,7 +7,7 @@ before changing anything. Org-wide conventions:
 
 ## What this repo is
 
-**Status: the format and its validator are in place (#3); one run recorded, landed by hand. This repository records released versions only ([ADR-0002](docs/adr/0002-benchmarks-records-released-versions.md)); change tests stay in each protocol repository. Planned (swarm-routing/.github#156): release-triggered runs (#24), suites (#23), the generated overview (#25).** Immutable benchmark datasets for the org: the raw marker lines of every
+**Status: the format and its validator are in place (#3); one run recorded, landed by hand. This repository records released versions only ([ADR-0002](docs/adr/0002-benchmarks-records-released-versions.md)); change tests stay in each protocol repository. Pre-org AntHocNet cells are being imported into `legacy/`, one family per PR, from AntHocNet release tags ([ADR-0003](docs/adr/0003-pre-org-results-are-a-frozen-legacy-archive.md), #7; static-mesh at v2.6.1 first). Planned (swarm-routing/.github#156): release-triggered runs (#24), suites (#23), the generated overview (#25).** Immutable benchmark datasets for the org: the raw marker lines of every
 20-seed run (`##CONFIG##`, `##RUN##`, `##PROV##`, …), paired statistical
 verdicts, and the reproducibility manifest of each run: the base `ns3-dev`
 image by tag and digest, the campaign image by digest, every module commit,
@@ -20,10 +20,14 @@ runs/<yyyy-mm-dd>-<campaign>/   one run: manifest.json + every file it lists (im
   cells/<cell>.txt              raw marker lines, one file per cell (or per seed slice of one)
   <preregistration>             the plan, when it is a file and not a pinned URL
 verdicts/                       (planned) paired comparison tables, recomputed from runs/ by ns3-tool
+legacy/<source>/<cell>/         a pre-org cell (ADR-0003): the file a release tag published + manifest.json; verdicts never read it
+legacy/<source>/INDEX.md        generated from the cells' manifests (import_anthocnet.py index); never edit by hand
 schemas/manifest.schema.json    the run manifest (JSON Schema; schema_version 1)
+schemas/legacy-manifest.schema.json   the legacy cell manifest (its own schema_version 1; provenance pre-org)
 schemas/markers/v<N>.json       the marker-line contract versions the data may use (v1: routing-bench today)
 schemas/examples/               an example manifest that validates (made-up digests and commits)
-tools/validate_run.py           the validator CI runs (+ test_validate_run.py) — MIT OR GPL-2.0-only
+tools/validate_run.py           the validator CI runs (+ test_validate_run.py): runs, legacy cells, immutability — MIT OR GPL-2.0-only
+tools/import_anthocnet.py       imports one family of AntHocNet's results/cells/ from a release tag into legacy/anthocnet/ (+ test_import_anthocnet.py) — MIT OR GPL-2.0-only
 tools/release/                  the dataset release (#39): dist.sh (`make dist`: benchmarks-<ver>.tar.gz), runs_notes.py
                                 (Commitizen's pre-bump hook: the runs a release adds, with their pins, into CHANGELOG.md) — MIT OR GPL-2.0-only
 .cz.toml, CITATION.cff          SemVer releases through swarm-routing/.github's reusable-release.yml (release.yml); type: dataset
@@ -37,7 +41,12 @@ python3 -I tools/validate_run.py --self-test        # every check, on fixtures i
 python3 -I tools/validate_run.py all                # every run under runs/
 python3 -I tools/validate_run.py check runs/<dir>   # one run
 python3 -I tools/validate_run.py manifest schemas/examples/manifest.example.json
-python3 -I tools/validate_run.py immutable --base origin/main   # golden rule 10
+python3 -I tools/validate_run.py legacy all         # every legacy cell and each generated INDEX.md (ADR-0003)
+python3 -I tools/validate_run.py immutable --base origin/main   # golden rule 10 (runs/ and legacy/)
+python3 -I tools/import_anthocnet.py --self-test    # the importer, on a fixture AntHocNet repository
+git clone -q --depth 1 --branch v0.1.0 https://github.com/swarm-routing/ns3-tools ../ns3-tools-v0.1.0   # the pin in AntHocNet's ns3-tools.lock
+python3 -I tools/import_anthocnet.py --src ../AntHocNet --tag v2.6.1 --family static-mesh \
+    --ns3-tools ../ns3-tools-v0.1.0/python          # one family from a release tag (README "Legacy (pre-org) data")
 ruff check tools && ruff format --check tools       # the org ruff.toml, as reusable-python-ci.yml
 make check                                          # lint, test, headers, org-sync check
 python3 -I tools/release/runs_notes.py --self-test  # the release notes' runs section, on a fixture repo
@@ -63,6 +72,13 @@ until the validator enforces it. A change to the manifest's fields bumps its
 `schemas/markers/v<N>.json` (ns3-tools golden rule 11). Before a verdict is
 committed, recompute it with the `ns3-tool` readers from
 `swarm-routing/ns3-tools` (golden rule 12).
+
+Legacy cells are not runs (ADR-0003): they keep the defects they were
+published with, declared in the manifest (`validate_run.py legacy` recomputes
+the defects and the swarm-routing/AntHocNet#460 `invalid` entry and requires
+them equal), and no verdict or overview reads `legacy/`. Import only from a
+release tag, only through `tools/import_anthocnet.py`, one family per PR; a
+newer record that replaces a legacy number names it in its own `supersedes`.
 
 ## Golden rules (invariants — do not break)
 
@@ -146,7 +162,13 @@ Org-wide (1–9), then this repo's own.
   gates the issue: that label set is the version's scope,
   and the version is released when its issues are done (CONTRIBUTING
   "Cutting a release"). Labels come from `labels.json` via the `sync-labels`
-  workflow.
+  workflow, the shared `release:v0.1.0` to `release:v0.4.0` and
+  `release:v1.0.0` among them; a version outside that set is added to
+  `swarm-routing/.github`'s `labels.json` (and CONTRIBUTING's label table)
+  when a ladder needs it, and reaches a repository when its `sync-labels` runs
+  (monthly, or dispatched after the change merges),
+  or, in a repository that keeps its own release labels (AntHocNet), created
+  there with `gh label create release:vX.Y.Z` when its ladder adds the version.
 - Issue bodies: **Context** (evidence, numbers, links) · **Scope** ·
   **Acceptance criteria** (checkboxes) · **Depends on** (cross-repo form
   `swarm-routing/<repo>#N`) · **References**. Children of an epic say "Part of
@@ -240,6 +262,7 @@ Code says the plugin is missing (it was called
 | Check a diff against the org golden rules before a PR or a review | `swarm-routing/.github` `tools/protocol-review/check_invariants.py` | `protocol-review` |
 | Bring the README, AGENTS/CLAUDE/CONTEXT and docs/ to the org documentation standard | `swarm-routing/.github` `tools/docs-review/check_docs.py` | `docs-review` |
 | Find new papers on a topic, or confirm a reference (Crossref, Semantic Scholar, OpenAlex; free sources only) | `swarm-routing/.github` `tools/lit-search/lit_search.py` | `lit-search` |
+| Measure what a Claude Code session loads from the agent files (`CLAUDE.md` and its `@` imports, or `AGENTS.md` alone), or where a finished Claude Code session's tokens went, before cutting or adding agent text | `swarm-routing/skills` `tools/token-audit/token_audit.py` | `token-audit` |
 
 A skill only this repository uses lives in its own `.claude/skills/`; a skill
 two repositories need moves to the plugin. Skills that file, cite and extract
@@ -250,6 +273,110 @@ a row in `swarm-routing/.github` `templates/agents/skills.md`, not here (an edit
 here is undone by the next `org_sync.py apply`).
 <!-- org-sync:end skills -->
 
+<!-- org-sync:begin agent-defaults -->
+## Working defaults
+
+Condensed from [andrej-karpathy-skills](https://github.com/forrestchang/andrej-karpathy-skills).
+
+- **Assumptions:** state the ones that matter. Ask only when the choice
+  belongs to the maintainer: a default, a published number, a cell, the scope.
+  Otherwise pick the sensible option, say which, and keep going. Long
+  unattended runs, like campaigns, depend on that.
+- **Simplicity:** the least code that solves the task. No speculative
+  features, configurability or abstractions for one use.
+- **Surgical diffs:** every changed line traces to the request. Match the
+  surrounding style. Mention unrelated dead code rather than deleting it, and
+  remove only the orphans your own change created.
+- **Verifiable goals:** a bug gets a reproducing test first; a refactor passes
+  before and after. Finish when the check passes, not when the code looks right.
+
+## Session habits
+
+- **Handoffs are always a ticket.** When a session ends with work in flight, or a
+  handoff is asked for, open a GitHub issue from the *Handoff* template (label
+  `handoff`). Never write a handoff file in the repo. Start a new session from
+  the newest open `handoff` issue, and close it when the work it hands off is
+  done ([AntHocNet ADR-0013](https://github.com/swarm-routing/AntHocNet/blob/main/docs/adr/0013-track-bugs-and-findings-as-issues.md) item 5).
+- **Attach only the repositories the task needs.** Each attached repository's
+  agent files are loaded into every request, whether the task touches it or
+  not.
+- **Start from the record, not from memory:** the newest open `handoff` issue,
+  then the issue's acceptance criteria, then `main`. Check a claim against its
+  source before it goes into an issue or a PR.
+- **Script what repeats.** A check or a lookup run more than a few times
+  becomes a script in `tools/` that prints a summary; the model reads the
+  verdict, not the raw data (AntHocNet ADR-0014).
+- **Measure before cutting or adding agent text:** the `token-audit` skill
+  (`swarm-routing/skills` `tools/token-audit/token_audit.py`) prints what a
+  session loads and where a finished session's tokens went.
+
+## Response style — caveman (token economy)
+
+Answer in tight, low-filler prose: drop hedging, pleasantries, and preamble; keep
+the substance. Fewer output tokens on every reply, same information.
+
+**Carve-out (the record stays full).** Keep byte-for-byte exact — code,
+commands, file paths, error text, benchmark numbers. And keep the *durable
+record* detailed, never terse: commit messages, PR bodies, ADRs, `docs/`, and
+issue / finding threads. Cross-session traceability depends on those being
+complete — AntHocNet's AC_BE_NQOS / A2 investigation was only recoverable
+because the issue threads were thorough. Caveman the chat, not the record.
+
+## Agent pitfalls
+
+- `gh api … -F body=@file` reads the file; `-f body=@file` posts the literal
+  text `@file`.
+- When the permission system refuses a command (a merge, say), stop and report
+  it. Never retry it another way, and never ask another agent to run it.
+- A PR body's `Closes #N` closes the issue on merge; write `Part of #N` while
+  acceptance criteria remain open.
+- Before saying a tool or check is missing, look at `main` (`git fetch`,
+  `origin/main`), not a stale local checkout.
+- In an issue, PR or comment, write every issue of another repository in
+  full, `swarm-routing/<repo>#N`, also inside a list or a range. A bare `#N`
+  links to the repository the text is in: in
+  `swarm-routing/AntHocNet#65, #151` the second number points at this
+  repository's #151 (swarm-routing/.github#277).
+- A sentence in `ROADMAP.md` or an AGENTS.md that calls an issue done is not
+  evidence: read the issue's acceptance criteria. On 2026-11-12 nine issues
+  described as done had open criteria (swarm-routing/.github#274).
+- Change text inside `org-sync:begin/end` markers only through the template
+  in `swarm-routing/.github` `templates/`: one PR there, then org-bot's
+  `bot/org-sync` refresh PR in each repository. A hand edit per repository
+  stays red on `check / org-sync` (swarm-routing/.github#236).
+- In a repository with a merge queue, merge by enabling auto-merge (squash);
+  a direct merge (`PUT pulls/<n>/merge`) is refused with HTTP 405. Only the
+  required checks (`gh api 'repos/{owner}/{repo}/rules/branches/main'`, which
+  `gh` fills from the checkout) gate a merge: a red or pending report-only
+  check (`codecov/patch`, Sonar) is triaged, not waited on. A red `dco` on an
+  outside contributor's commit still holds the PR until that author signs
+  off; on the maintainer's or an agent's commits it is expected
+  (swarm-routing/.github#212). `dco` is not a required check and runs on
+  `pull_request` only, so merge an outside contributor's PR, by auto-merge or
+  directly, only after `dco` passed on the head commit that merges, and
+  disable auto-merge before anyone pushes to that PR.
+- Enable auto-merge only after CodeRabbit has reviewed and its threads are
+  resolved: it is not a required check, so auto-merge does not wait for it.
+  `python3 -I ../.github/tools/pr-status/pr_status.py wait --review REPO#N`
+  (a `swarm-routing/.github` checkout next to the repository) waits for the
+  review and goes on with a warning 30 minutes after the PR opened
+  (swarm-routing/.github#238).
+- Never add a `Signed-off-by` trailer, for the maintainer or anyone else: a
+  DCO sign-off is a person's own certification (CONTRIBUTING "Outside
+  contributions").
+- Releases are cut on request only: dispatch the release `bump` when the
+  maintainer asks, once the version's `release:vX.Y.Z` issues are done and
+  its exit criteria in the ladder (`docs/roadmap.md`, or the org ROADMAP's
+  release train until it lands) are met; never approve a gated publish. A
+  failed publish is recovered with "Re-run all jobs", never "Re-run failed
+  jobs" (CONTRIBUTING "Cutting a release"). Never type a release's DOI: read
+  it from Zenodo.
+- Cite a paper in a public issue, PR or doc by its `https://doi.org/<DOI>`
+  link, read from its record (`lit-search` confirms it), or, for a work with
+  no DOI, by its publisher's or institution's page; never point into or name
+  the private paper library there.
+<!-- org-sync:end agent-defaults -->
+
 ## Where to look
 
 | You want to… | Go to |
@@ -257,6 +384,7 @@ here is undone by the next `org_sync.py apply`).
 | Data format and methodology to follow | AntHocNet `docs/benchmarks/{metrics,methodology}.md`, `results/` |
 | The run layout, the manifest, how a run gets here, a correction | README "Adding a run", `schemas/manifest.schema.json`, `tools/validate_run.py` |
 | The marker contract versions | `schemas/markers/`; the emitter: `swarm-routing/ns3-tools` `ns3/routing-bench/`, its versioned contract: swarm-routing/ns3-tools#3 |
+| The pre-org AntHocNet cells: why they are apart, what their manifest records, how to import a family | `docs/adr/0003-pre-org-results-are-a-frozen-legacy-archive.md`, README "Legacy (pre-org) data", `legacy/anthocnet/INDEX.md`, `tools/import_anthocnet.py`; #7 |
 | Why the manifest records digests and every commit | swarm-routing/.github#107 (campaign images built once, cells pulled by digest) |
 | Parsers and statistics | `swarm-routing/ns3-tools` (`ns3-tool compare`) |
 | The org's invariants, labels, issue shape | [`swarm-routing/.github` CONTRIBUTING.md](https://github.com/swarm-routing/.github/blob/main/CONTRIBUTING.md) |

@@ -6,14 +6,15 @@
 # it for swarm-routing/.github's reusable-release.yml:
 #
 #   benchmarks-VERSION.tar.gz   benchmarks-VERSION/ holding every git-tracked
-#                               file of runs/, verdicts/ (when present),
-#                               schemas/, tools/, the licence texts, README.md
+#                               file of runs/, verdicts/ and legacy/ (when
+#                               present; legacy/ is the pre-org archive,
+#                               ADR-0003), schemas/, tools/, the licence texts, README.md
 #                               and CITATION.cff; RUNS.md (every run with its
 #                               pinned inputs, tools/release/runs_notes.py) and
 #                               SHA256SUMS.txt (a checksum per file inside)
 #
-# It validates every run first (tools/validate_run.py all), so a release never
-# ships a run the validator refuses. Deterministic: sorted entries, a fixed
+# It validates every run and every legacy cell first (tools/validate_run.py all,
+# legacy all), so a release never ships data the validator refuses. Deterministic: sorted entries, a fixed
 # owner and mode, the release commit's time, gzip -n; the same commit gives
 # the same bytes.
 set -euo pipefail
@@ -27,12 +28,14 @@ trap 'rm -rf "$tmp"' EXIT
 epoch=$(git -C "$repo" log -1 --format=%ct)
 
 python3 -I "$repo/tools/validate_run.py" all
+python3 -I "$repo/tools/validate_run.py" legacy all
 
 name="benchmarks-$ver"
 pkg="$tmp/$name"
 mkdir -p "$pkg"
 paths=(runs schemas tools LICENSE LICENSE-MIT LICENSING.md README.md CITATION.cff)
 if [[ -d "$repo/verdicts" ]]; then paths+=(verdicts); fi
+if [[ -d "$repo/legacy" ]]; then paths+=(legacy); fi
 for p in CITATION.cff LICENSE README.md; do
     [[ -f "$repo/$p" ]] || { echo "dist.sh: $p is missing" >&2; exit 1; }
 done

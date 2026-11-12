@@ -1,0 +1,202 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/swarm-routing/benchmarks/blob/main/schemas/legacy-manifest.schema.json",
+  "title": "benchmarks legacy (pre-org) cell manifest, schema version 1",
+  "description": "legacy/<source>/<cell>/manifest.json: one cell imported byte for byte from a protocol repository's release tag, as it was published before the org's run format existed (ADR-0003). Not a run: runs/ manifests follow manifest.schema.json, and verdicts/ and the overview never read legacy/. tools/validate_run.py legacy enforces this file with the same stdlib interpreter, then checks it against the cell (sha256, ##PROV## commits and images, arms and seeds, defects, the #460 invalid entry). A field change bumps schema_version.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "provenance",
+    "cell",
+    "family",
+    "source",
+    "measured",
+    "images",
+    "arms",
+    "markers",
+    "defects",
+    "invalid"
+  ],
+  "properties": {
+    "schema_version": {
+      "description": "This legacy manifest schema's version (independent of manifest.schema.json's).",
+      "const": 1
+    },
+    "provenance": {
+      "description": "Measured before the org's run format: never a current result (ADR-0003).",
+      "const": "pre-org"
+    },
+    "cell": {
+      "description": "The cell's name: the source file's name without .txt, and this directory's name.",
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]*$"
+    },
+    "family": {
+      "description": "The network family the cell belongs to, as the import named it (the file-name prefix).",
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]*$"
+    },
+    "source": {
+      "description": "Where the file was imported from: the release tag that published it and the commit the tag names. The cell is byte-identical to the file there.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["repo", "tag", "commit", "path", "sha256"],
+      "properties": {
+        "repo": {"type": "string", "pattern": "^[A-Za-z0-9-]+/[A-Za-z0-9._-]+$"},
+        "tag": {
+          "description": "A release tag (vX.Y.Z), never a branch (ADR-0003).",
+          "type": "string",
+          "pattern": "^v[0-9]+\\.[0-9]+\\.[0-9]+$"
+        },
+        "commit": {"$ref": "#/$defs/commit"},
+        "path": {"type": "string", "pattern": "^results/cells/[A-Za-z0-9._-]+\\.txt$"},
+        "sha256": {"$ref": "#/$defs/sha256"}
+      }
+    },
+    "measured": {
+      "description": "One entry per distinct commit the cell's ##PROV## lines name, in the order they first appear; empty only with a no-prov defect.",
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["commit", "ref", "run_ids", "contains_fix", "ancestry"],
+        "properties": {
+          "commit": {"$ref": "#/$defs/commit"},
+          "ref": {
+            "description": "The ref the run was dispatched from, as ##PROV## names it (often a branch: the measured commit need not be a release).",
+            "type": "string",
+            "minLength": 1
+          },
+          "run_ids": {
+            "description": "The workflow run ids ##PROV## names for this commit.",
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {"type": "integer", "minimum": 1}
+          },
+          "contains_fix": {
+            "description": "Whether the commit descends from the #459 fix (swarm-routing/AntHocNet 1a7c32b9538d9a1d9449a00c114286ad49f64c93); 'unresolved' when neither git nor GitHub could say.",
+            "enum": [true, false, "unresolved"]
+          },
+          "ancestry": {
+            "description": "How contains_fix was answered.",
+            "enum": ["git", "github-compare", "none"]
+          }
+        }
+      }
+    },
+    "images": {
+      "description": "Every image ##PROV## names. A rolling tag carries its digest of record, read later (verified false); a digest ##PROV## names itself is verified.",
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["role", "ref", "digest", "verified"],
+        "properties": {
+          "role": {"description": "run: the image the cell ran in; base: the image it was built FROM.", "enum": ["run", "base"]},
+          "ref": {"description": "The image as ##PROV## names it, without a digest.", "type": "string", "pattern": "^[a-z0-9.-]+/[A-Za-z0-9._/-]+(:[A-Za-z0-9._-]+)?$"},
+          "digest": {"$ref": "#/$defs/digest"},
+          "verified": {
+            "description": "true: ##PROV## names this digest; false: the digest of record of a rolling tag, not proven to be the bytes the run used.",
+            "type": "boolean"
+          },
+          "digest_source": {
+            "description": "For an unverified digest: where it was read (a blob at a pinned commit).",
+            "type": "string",
+            "pattern": "^https://github\\.com/[^\\s]+/blob/[0-9a-f]{40}/[^\\s]+$"
+          },
+          "digest_read": {
+            "description": "For an unverified digest: the date the source read it from the registry.",
+            "type": "string",
+            "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+          }
+        }
+      }
+    },
+    "arms": {
+      "description": "Each arm with ##RUN## rows and the seeds it ran, as found (golden rule 6 is recorded as a seeds-below-20 defect, never enforced by dropping data).",
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["arm", "seeds"],
+        "properties": {
+          "arm": {"type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_-]*$"},
+          "seeds": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {"type": "integer", "minimum": 0}
+          }
+        }
+      }
+    },
+    "markers": {
+      "description": "The marker-line contract the cell is read under: a version in schemas/markers/.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["schema_version"],
+      "properties": {"schema_version": {"type": "integer", "minimum": 1}}
+    },
+    "defects": {
+      "description": "Every way the cell breaks the contract or the org rules, declared: the validator recomputes the list and requires it equal (an undeclared defect fails, and so does a stale one).",
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["kind", "detail"],
+        "properties": {
+          "kind": {"enum": ["garbled-marker", "seeds-below-20", "duplicate-seed", "no-prov", "multi-commit"]},
+          "detail": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "invalid": {
+      "description": "Markers whose numbers are invalid, with the issue that says why (maintainer decision on #7: imported and flagged, never dropped). Recomputed by the validator.",
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["markers", "issue", "reason"],
+        "properties": {
+          "markers": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {"type": "string", "pattern": "^[A-Z]+$"}
+          },
+          "issue": {"type": "string", "pattern": "^https://github\\.com/[A-Za-z0-9-]+/[A-Za-z0-9._-]+/issues/[0-9]+$"},
+          "reason": {"type": "string", "minLength": 1}
+        }
+      }
+    },
+    "supersedes": {
+      "description": "What this newer record supersedes, carried by the newer record only (rule 10: nothing is edited forward). target: a legacy cell (legacy/<source>/<cell>) or a pinned page URL.",
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["target", "scope", "issue"],
+        "properties": {
+          "target": {"type": "string", "pattern": "^(legacy/[a-z0-9-]+/[a-z0-9][a-z0-9._-]*|https://github\\.com/[^\\s]+/blob/[0-9a-f]{40}/[^\\s]+)$"},
+          "scope": {"type": "string", "minLength": 1},
+          "issue": {"type": "string", "pattern": "^https://github\\.com/[A-Za-z0-9-]+/[A-Za-z0-9._-]+/issues/[0-9]+$"},
+          "pr": {"type": "string", "pattern": "^https://github\\.com/[A-Za-z0-9-]+/[A-Za-z0-9._-]+/pull/[0-9]+$"}
+        }
+      }
+    },
+    "notes": {"description": "Free text a reader needs that no field holds.", "type": "string"}
+  },
+  "$defs": {
+    "digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}

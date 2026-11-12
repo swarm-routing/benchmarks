@@ -27,6 +27,8 @@ build: ## build what this repo ships
 test: ## the fast tests CI runs on every PR
 	python3 -I tools/validate_run.py --self-test
 	python3 -I tools/validate_run.py all
+	python3 -I tools/validate_run.py legacy all
+	python3 -I tools/import_anthocnet.py --self-test
 	python3 -I tools/release/runs_notes.py --self-test
 
 lint: ## static checks, no changes

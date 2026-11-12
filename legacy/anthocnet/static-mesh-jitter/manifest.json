@@ -1,0 +1,166 @@
+{
+  "schema_version": 1,
+  "provenance": "pre-org",
+  "cell": "static-mesh-jitter",
+  "family": "static-mesh",
+  "source": {
+    "repo": "swarm-routing/AntHocNet",
+    "tag": "v2.6.1",
+    "commit": "7faa3f9043a18d14913501a1d053201808c6041d",
+    "path": "results/cells/static-mesh-jitter.txt",
+    "sha256": "fe784a9bf818c60f522540d22f1813e8823201a0a0286b1758dccb31e7782bd2"
+  },
+  "measured": [
+    {
+      "commit": "ce81eefe9c9826e7c6e770c3a46adb3b8cd5e1c5",
+      "ref": "claude/anthocnet-project-review-2brrrv",
+      "run_ids": [
+        36595249953
+      ],
+      "contains_fix": true,
+      "ancestry": "github-compare"
+    }
+  ],
+  "images": [
+    {
+      "role": "run",
+      "ref": "ghcr.io/danieljoppi/ns3:3.42-opt",
+      "digest": "sha256:af6b50155528164de33764f059a2736d31bf4cca1c4778009c93fb6620ddc95e",
+      "verified": false,
+      "digest_source": "https://github.com/swarm-routing/AntHocNet/blob/77e71237e178966ee50962f0dd6333b1a9a9a571/docker/README.md",
+      "digest_read": "2026-11-11"
+    }
+  ],
+  "arms": [
+    {
+      "arm": "anthocnet",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20
+      ]
+    },
+    {
+      "arm": "aodv",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20
+      ]
+    },
+    {
+      "arm": "dsdv",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20
+      ]
+    },
+    {
+      "arm": "olsr",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20
+      ]
+    },
+    {
+      "arm": "oracle",
+      "seeds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20
+      ]
+    }
+  ],
+  "markers": {
+    "schema_version": 1
+  },
+  "defects": [],
+  "invalid": []
+}
