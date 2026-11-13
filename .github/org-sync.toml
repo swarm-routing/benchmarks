@@ -25,10 +25,23 @@ limitations = """
 - Reproducibility is to the pinned image digest and the seed, not across CPUs
   or compilers outside that image."""
 verifying = """
-Recompute a verdict from the raw runs with the `ns3-tool` readers
-(swarm-routing/ns3-tools), and check the image a manifest pins with
-`cosign verify` as ns3-containers' `SECURITY.md` describes. No dataset is
-merged yet."""
+- **A release asset.** `benchmarks-X.Y.Z.tar.gz` unpacks with a
+  `SHA256SUMS.txt` (`sha256sum -c SHA256SUMS.txt` in the unpacked directory);
+  the release also carries `SHA256SUMS`, an SBOM and signed build provenance,
+  with the verify commands in its notes (README "Releases").
+- **A run.** `python3 -I tools/validate_run.py check runs/<dir>` checks the
+  files against the manifest's hashes, and the cells against its seeds,
+  scenarios, commands, image digests and module commits. The command is
+  compared with a cell's `##ARGS##` line, which marker contract v1 leaves
+  optional: for a seed slice without one, a passing check says nothing about
+  its command or about the parameters its `##CONFIG##` line lacks (the
+  recorded run has one in every slice).
+- **A verdict.** Recompute it from a cell with the `ns3-tool` reader, in a
+  checkout of swarm-routing/ns3-tools `main` (`--vs` is newer than its v0.1.0
+  and than the commit the recorded run pins, which reject it):
+  `python3 python/ns3_tool/bench_parse.py --proto anthocnet --vs aodv <benchmarks>/runs/2026-11-10-anthocnet-aodv-smoke/cells/grid-rwp.txt`.
+- **The image.** Check the image a manifest pins with `cosign verify`, as
+  ns3-containers' `SECURITY.md` describes."""
 
 [settings]
 # GitHub settings as code: swarm-routing/.github tools/repo-settings (swarm-routing/.github#117).

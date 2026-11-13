@@ -59,6 +59,24 @@ A manifest records (all required unless marked):
 | `supersedes` (optional) | the run this one corrects and the issue that says why |
 | `notes` (optional) | free text |
 
+The validator compares the manifest with the data, per cell and per seed slice
+of a cell (a slice opens at each `##CONFIG## scenario=...` line; the
+`##CONFIG## attr ...` lines are not compared):
+
+| Manifest field | Compared with |
+|----------------|---------------|
+| `scenarios[].parameters` | each key the slice's `##CONFIG##` line carries has the same value there; a key it does not carry (`diag` today) is read from the slice's `##ARGS##` line, as `--key=value`, or `--key` for a `true` flag; a key the `##ARGS##` line carries has the same value there too |
+| `scenarios[].arms` | the `protocols=` of `##CONFIG##` and the `--protocols=` of `##ARGS##` (in any order, where the line has one), and the arms of the `##RUN##` rows |
+| `harness.program` | the first word of each `##ARGS##` line |
+| `commands` | each `##ARGS##` line, whole, is one of them |
+| `seeds` | the `##RUN##` rows: every arm ran each seed once |
+| `base_image.digest`, `campaign_image.digest`, `modules[].commit` | every `##PROV##` line names them, and nothing else |
+
+`##ARGS##` stays optional in marker contract v1 (the dispatching workflow
+writes it for every cell today): a slice without one has its `commands` and
+the parameters `##CONFIG##` lacks unchecked. Requiring it is a change of the
+contract, so it belongs to version 2 (#33).
+
 [`schemas/examples/manifest.example.json`](schemas/examples/manifest.example.json)
 is a complete example (its digests and commits are made up).
 

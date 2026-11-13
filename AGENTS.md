@@ -48,7 +48,7 @@ git clone -q --depth 1 --branch v0.1.0 https://github.com/swarm-routing/ns3-tool
 python3 -I tools/import_anthocnet.py --src ../AntHocNet --tag v2.6.1 --family static-mesh \
     --ns3-tools ../ns3-tools-v0.1.0/python          # one family from a release tag (README "Legacy (pre-org) data")
 ruff check tools && ruff format --check tools       # the org ruff.toml, as reusable-python-ci.yml
-make check                                          # lint, test, headers, org-sync check
+make check                                          # lint (actionlint, ruff), test (self-tests, the example manifest, every run and legacy cell, immutable --base $(BASE), default origin/main), headers, org-sync check
 python3 -I tools/release/runs_notes.py --self-test  # the release notes' runs section, on a fixture repo
 make dist                                           # benchmarks-<ver>.tar.gz in dist/, deterministic
 ```
@@ -63,7 +63,12 @@ are done, dispatch `release.yml` with mode `bump` and merge the bump PR.
 A full check enforces the schema; that the directory is `<date>-<campaign>`;
 that every file is listed with its sha256; that every cell parses under the
 marker contract the manifest names (an unknown or truncated `##NAME##` fails);
-that each arm of each scenario ran exactly the manifest's seeds (>= 20); and
+that each arm of each scenario ran exactly the manifest's seeds (>= 20);
+that each cell's `##CONFIG##` and `##ARGS##` lines agree with the manifest's
+scenario parameters, arms, `harness.program` and `commands` (#87; `##ARGS##`
+is optional in marker contract v1, and a seed slice without one has its
+command and the parameters `##CONFIG##` lacks unchecked: README "A manifest
+records"); and
 that every `##PROV##` line names the base digest, the campaign-image digest and
 every module commit, and nothing else. The schema keywords the validator
 interprets are a fixed set: a new keyword in the schema fails the self-test
