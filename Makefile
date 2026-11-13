@@ -14,6 +14,8 @@ BUILD_ARGS ?=
 # The org tooling (check-headers.py, org-sync): a shallow clone, refreshed to ORG_REF.
 ORG_DIR   ?= $(HOME)/.cache/swarm-routing/dotgithub
 ORG_REF   ?= main
+# What `make test` compares runs/ and legacy/ with (golden rule 10); CI uses the PR's base.
+BASE      ?= origin/main
 
 .DEFAULT_GOAL := help
 .PHONY: help build test lint format check clean shell ci headers org-sync-check org-tools dist
@@ -26,13 +28,20 @@ build: ## build what this repo ships
 
 test: ## the fast tests CI runs on every PR
 	python3 -I tools/validate_run.py --self-test
+	python3 -I tools/validate_run.py manifest schemas/examples/manifest.example.json
 	python3 -I tools/validate_run.py all
 	python3 -I tools/validate_run.py legacy all
 	python3 -I tools/import_anthocnet.py --self-test
 	python3 -I tools/release/runs_notes.py --self-test
+	python3 -I tools/validate_run.py immutable --base $(BASE)
 
 lint: ## static checks, no changes
 	actionlint
+	@$(MAKE) --no-print-directory org-tools
+	@if command -v ruff >/dev/null; then set -ex; \
+	  ruff check --config "$(ORG_DIR)/ruff.toml" tools; \
+	  ruff format --check --config "$(ORG_DIR)/ruff.toml" tools; \
+	else echo "make lint: ruff not found, skipping the Python lint CI gates on (pip install ruff)" >&2; fi
 
 format: ## apply the formatters
 	@echo "make format: nothing to do in this repo (kind data)"
