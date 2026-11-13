@@ -47,3 +47,18 @@ references:
       name: "Zenodo"
     doi: "10.5281/zenodo.24136068"
     notes: "The routing-bench harness and campaign image every recorded run comes from, at the commit each run's manifest pins."
+  - type: book
+    title: "The ns-3 Network Simulator"
+    authors:
+      - family-names: "Riley"
+        given-names: "George F."
+      - family-names: "Henderson"
+        given-names: "Thomas R."
+    collection-title: "Modeling and Tools for Network Simulation"
+    start: "15"
+    end: "34"
+    year: 2010
+    publisher:
+      name: "Springer Berlin Heidelberg"
+    doi: "10.1007/978-3-642-12331-3_2"
+    notes: "ns-3, the simulator every recorded run ran on, in the ns3-dev image each run's manifest pins by digest."
