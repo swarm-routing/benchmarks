@@ -151,7 +151,7 @@ Org-wide (1–9), then this repo's own.
    that anything shipped needs live in `tools/` (AntHocNet ADR-0014).
 <!-- org-sync:end org-rules -->
 10. **Committed data is immutable.** Never edit or delete a merged run; a correction is a new run that names the one it supersedes (and an issue explaining why).
-11. **Every run has a manifest** pinning the immutable `ns3-dev:<ver>-<profile>-<sha7>` image, each protocol's commit, the scenario, the seeds and the exact command. No manifest, no merge.
+11. **Every run has a manifest** pinning the immutable `ns3:<ver>-<profile>-<sha7>` image (`ns3-dev:` before swarm-routing/.github#370; never a rolling `latest` tag), each protocol's commit, the scenario, the seeds and the exact command. No manifest, no merge.
 12. **Verdicts are recomputable** from the raw data by a script; no hand-edited numbers.
 13. **Benchmarks run on the `optimized` image**; CI legs use `debug`/`sanitized`.
 
