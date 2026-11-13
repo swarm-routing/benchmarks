@@ -46,8 +46,8 @@ A manifest records (all required unless marked):
 | Field | What |
 |-------|------|
 | `campaign`, `date` | the run directory is `<date>-<campaign>` |
-| `base_image` | the `ghcr.io/swarm-routing/ns3-dev:<ver>-optimized-<sha7>` tag (never a rolling tag), its `sha256:` digest, the ns-3 version, `profile: optimized` |
-| `campaign_image` | the image every cell pulled, by ref and digest: `<repo>-ns3-campaign:<commit7>-<basesha7>` (or with the `-optimized` suffix `reusable-ns3-image.yml` pushes), or a release image `<repo>-ns3:<version>-optimized` |
+| `base_image` | the `ghcr.io/swarm-routing/ns3:<ver>-optimized-<sha7>` tag (`ns3-dev:` before swarm-routing/.github#370; never a rolling tag), its `sha256:` digest, the ns-3 version, `profile: optimized` |
+| `campaign_image` | the image every cell pulled, by ref and digest: a campaign image `<repo>-dev:<commit7>-<basesha7>` (or with the `-optimized` suffix `reusable-ns3-image.yml` pushes), or a release image `<repo>:<version>-optimized`; before swarm-routing/.github#370 they were `<repo>-ns3-campaign` and `<repo>-ns3`, which stay valid. Never the base package, never a rolling tag (`latest…`) |
 | `modules` | every module built into that image (protocols, `swarm-core`, `routing-bench`, each arm), with its repository and 40-character commit |
 | `harness` | the program (`routing-compare`) and the module that holds it |
 | `scenarios` | each cell: its name, its arms, its parameters |

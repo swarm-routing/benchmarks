@@ -93,6 +93,11 @@ BASE_TAG = re.compile(r":([0-9]+\.[0-9]+(?:\.[0-9]+)?)-")
 # <commit7>-<basesha7>, or with the -optimized profile suffix that
 # swarm-routing/.github reusable-ns3-image.yml appends to every tag it pushes.
 CAMPAIGN_TAG = re.compile(r"^([0-9a-f]{7})-([0-9a-f]{7})(-optimized)?$")
+# A campaign image's package: <repo>-dev, or <repo>-ns3-campaign before
+# swarm-routing/.github#370. Any other package is a release image (<repo>, or
+# <repo>-ns3 before #370); the base packages are neither.
+CAMPAIGN_REPO = re.compile(r"-(ns3-campaign|dev)$")
+BASE_REPOS = {"ghcr.io/swarm-routing/ns3", "ghcr.io/swarm-routing/ns3-dev"}
 
 # --- the JSON Schema subset ---------------------------------------------------
 
@@ -236,7 +241,9 @@ def manifest_errors(m, run_name=None):
     repo, tag = ref.rsplit(":", 1)
     if "latest" in tag:
         errs.append(f"campaign_image: {ref} is a rolling tag (golden rule 11)")
-    elif repo.endswith("-ns3-campaign"):
+    elif repo in BASE_REPOS:
+        errs.append(f"campaign_image: {repo} is the base image, not a campaign or release image")
+    elif CAMPAIGN_REPO.search(repo):
         t = CAMPAIGN_TAG.match(tag)
         if not t:
             errs.append(f"campaign_image: tag {tag} is not <commit7>-<basesha7>[-optimized]")
@@ -1254,6 +1261,16 @@ def self_test():
         "does not match",
         setp(["base_image", "ref"], "ghcr.io/swarm-routing/ns3-dev:latest-optimized"),
     )
+    case(
+        "base named ns3 (swarm-routing/.github#370)",
+        None,
+        setp(["base_image", "ref"], "ghcr.io/swarm-routing/ns3:3.48-optimized-1a2b3c4"),
+    )
+    case(
+        "rolling base tag on ns3",
+        "does not match",
+        setp(["base_image", "ref"], "ghcr.io/swarm-routing/ns3:latest-optimized"),
+    )
     case("short digest", "does not match", setp(["base_image", "digest"], "sha256:abc"))
     case(
         "base tag vs ns3_version",
@@ -1272,6 +1289,36 @@ def self_test():
             ["campaign_image", "ref"],
             "ghcr.io/swarm-routing/ara-ns3-campaign:0123456-bbbbbbb-optimized",
         ),
+    )
+    case(
+        "campaign image named <repo>-dev (swarm-routing/.github#370)",
+        None,
+        setp(["campaign_image", "ref"], "ghcr.io/swarm-routing/ara-dev:0123456-bbbbbbb-optimized"),
+    )
+    case(
+        "<repo>-dev with another profile",
+        "is not <commit7>-<basesha7>[-optimized]",
+        setp(["campaign_image", "ref"], "ghcr.io/swarm-routing/ara-dev:0123456-bbbbbbb-debug"),
+    )
+    case(
+        "<repo>-dev rolling tag",
+        "rolling tag",
+        setp(["campaign_image", "ref"], "ghcr.io/swarm-routing/ara-dev:latest"),
+    )
+    case(
+        "release image named <repo> (swarm-routing/.github#370)",
+        None,
+        setp(["campaign_image", "ref"], "ghcr.io/swarm-routing/ara:v1.0.0-optimized"),
+    )
+    case(
+        "release image named <repo>, rolling",
+        "rolling tag",
+        setp(["campaign_image", "ref"], "ghcr.io/swarm-routing/ara:latest-optimized"),
+    )
+    case(
+        "the base as the campaign image",
+        "is the base image",
+        setp(["campaign_image", "ref"], "ghcr.io/swarm-routing/ns3:3.48-optimized-1a2b3c4"),
     )
     case(
         "campaign tag with another profile",
@@ -1311,6 +1358,11 @@ def self_test():
         "release image not optimized",
         "is not <version>-optimized",
         setp(["campaign_image", "ref"], "ghcr.io/swarm-routing/ara-ns3:1.0.0-debug"),
+    )
+    case(
+        "release image named <repo>, not optimized",
+        "is not <version>-optimized",
+        setp(["campaign_image", "ref"], "ghcr.io/swarm-routing/ara:v1.0.0-debug"),
     )
     # rule 6: >= 20 paired seeds, every arm, every seed
     case("19 seeds", "at least 20 required", setp(["seeds"], list(range(1, 20))))
