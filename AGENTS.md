@@ -63,7 +63,9 @@ are done, dispatch `release.yml` with mode `bump` and merge the bump PR.
 A full check enforces the schema; that the directory is `<date>-<campaign>`;
 that every file is listed with its sha256; that every cell parses under the
 marker contract the manifest names (an unknown or truncated `##NAME##` fails);
-that each arm of each scenario ran exactly the manifest's seeds (>= 20); and
+that each arm of each scenario ran exactly the manifest's seeds (>= 20);
+that each cell's `##CONFIG##` and `##ARGS##` lines agree with the manifest's
+scenario parameters, arms, `harness.program` and `commands` (#87); and
 that every `##PROV##` line names the base digest, the campaign-image digest and
 every module commit, and nothing else. The schema keywords the validator
 interprets are a fixed set: a new keyword in the schema fails the self-test
