@@ -207,6 +207,7 @@ Please also cite the work it builds on:
 
 - D. H. Joppi, *AntHocNet for NS-3*, 2026, [doi:10.5281/zenodo.20981979](https://doi.org/10.5281/zenodo.20981979). The protocol module the recorded runs build and measure, at the commit each run's manifest pins.
 - D. Joppi, *swarm-routing/ns3-tools: v0.1.0*, 2026, [doi:10.5281/zenodo.24136068](https://doi.org/10.5281/zenodo.24136068). The routing-bench harness and campaign image every recorded run comes from, at the commit each run's manifest pins.
+- G. F. Riley, T. R. Henderson, *The ns-3 Network Simulator*, Modeling and Tools for Network Simulation, pp. 15–34, 2010, [doi:10.1007/978-3-642-12331-3_2](https://doi.org/10.1007/978-3-642-12331-3_2). ns-3, the simulator every recorded run ran on, in the ns3-dev image each run's manifest pins by digest.
 
 Using it in your work? Contributions are welcome, and citing the DOI helps just as much.
 <!-- org-sync:end citing -->
