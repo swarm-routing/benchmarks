@@ -37,8 +37,7 @@ test: ## the fast tests CI runs on every PR
 
 lint: ## static checks, no changes
 	actionlint
-	@$(MAKE) --no-print-directory org-tools
-	@if command -v ruff >/dev/null; then set -ex; \
+	@if command -v ruff >/dev/null; then $(MAKE) --no-print-directory org-tools && set -ex; \
 	  ruff check --config "$(ORG_DIR)/ruff.toml" tools; \
 	  ruff format --check --config "$(ORG_DIR)/ruff.toml" tools; \
 	else echo "make lint: ruff not found, skipping the Python lint CI gates on (pip install ruff)" >&2; fi

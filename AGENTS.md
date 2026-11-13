@@ -65,7 +65,10 @@ that every file is listed with its sha256; that every cell parses under the
 marker contract the manifest names (an unknown or truncated `##NAME##` fails);
 that each arm of each scenario ran exactly the manifest's seeds (>= 20);
 that each cell's `##CONFIG##` and `##ARGS##` lines agree with the manifest's
-scenario parameters, arms, `harness.program` and `commands` (#87); and
+scenario parameters, arms, `harness.program` and `commands` (#87; `##ARGS##`
+is optional in marker contract v1, and a seed slice without one has its
+command and the parameters `##CONFIG##` lacks unchecked: README "A manifest
+records"); and
 that every `##PROV##` line names the base digest, the campaign-image digest and
 every module commit, and nothing else. The schema keywords the validator
 interprets are a fixed set: a new keyword in the schema fails the self-test

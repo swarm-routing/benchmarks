@@ -42,9 +42,14 @@ best-effort basis: expect an acknowledgement within a few days, not an SLA.
   with the verify commands in its notes (README "Releases").
 - **A run.** `python3 -I tools/validate_run.py check runs/<dir>` checks the
   files against the manifest's hashes, and the cells against its seeds,
-  scenarios, commands, image digests and module commits.
+  scenarios, commands, image digests and module commits. The command is
+  compared with a cell's `##ARGS##` line, which marker contract v1 leaves
+  optional: for a seed slice without one, a passing check says nothing about
+  its command or about the parameters its `##CONFIG##` line lacks (the
+  recorded run has one in every slice).
 - **A verdict.** Recompute it from a cell with the `ns3-tool` reader, in a
-  swarm-routing/ns3-tools checkout:
+  checkout of swarm-routing/ns3-tools `main` (`--vs` is newer than its v0.1.0
+  and than the commit the recorded run pins, which reject it):
   `python3 python/ns3_tool/bench_parse.py --proto anthocnet --vs aodv <benchmarks>/runs/2026-11-10-anthocnet-aodv-smoke/cells/grid-rwp.txt`.
 - **The image.** Check the image a manifest pins with `cosign verify`, as
   ns3-containers' `SECURITY.md` describes.

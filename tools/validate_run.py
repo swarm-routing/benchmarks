@@ -43,8 +43,10 @@ What a full check enforces:
     scenario line): every key of the scenario's parameters that the ##CONFIG##
     line carries has the manifest's value there, and its protocols= are the
     scenario's arms; each ##ARGS## line starts with harness.program, is one of
-    the manifest's commands, and carries every parameter ##CONFIG## does not
-    (--key=value, or --key for a true flag such as diag). ##ARGS## stays
+    the manifest's commands, carries every parameter ##CONFIG## does not
+    (--key=value, or --key for a true flag such as diag), has the manifest's
+    value for each parameter it carries, and its --protocols, when it has one,
+    are the arms. ##ARGS## stays
     optional in marker contract v1: a slice without one has its commands and
     those parameters unchecked;
   - every ##PROV## line names the base digest, the campaign-image digest and
@@ -329,8 +331,9 @@ def config_errors(where, config, scen):
 
 
 def args_errors(where, body, config, scen, m):
-    """One ##ARGS## line against the manifest's harness, commands and, for the
-    parameters its block's ##CONFIG## line (`config`) does not carry, the scenario."""
+    """One ##ARGS## line against the manifest's harness, commands and scenario: every
+    parameter it carries, each one its block's ##CONFIG## line (`config`) does not
+    carry, and its --protocols, when it has one, against the arms."""
     errs = []
     toks = body.split()
     program = toks[0] if toks else ""
@@ -349,14 +352,17 @@ def args_errors(where, body, config, scen, m):
             key, eq, value = t[2:].partition("=")
             opts[key] = value if eq else "true"
     for key, want in scen["parameters"].items():
-        if key in config:
-            continue  # compared with ##CONFIG##
         says = f"the manifest's scenario {scen['name']} says {key}={_shown(want)}"
         if key not in opts:
-            if want is not False:
+            if key not in config and want is not False:  # ##CONFIG## may carry it instead
                 errs.append(f"{where}: ##ARGS## has no --{key}, {says}")
         elif not _agrees(want, opts[key]):
             errs.append(f"{where}: ##ARGS## --{key}={opts[key]}, {says}")
+    if "protocols" in opts and sorted(opts["protocols"].split(",")) != sorted(scen["arms"]):
+        errs.append(
+            f"{where}: ##ARGS## --protocols={opts['protocols']}, the manifest's scenario "
+            f"{scen['name']} has arms {','.join(scen['arms'])}"
+        )
     return errs
 
 
@@ -1403,6 +1409,33 @@ def self_test():
         with_diag,
         cell=lambda m: _cell(m, arms, seeds, extra=[f"{args} --diag"]),
     )
+
+    def with_command(old, new):
+        """The manifest's command and the cell's ##ARGS## line, both with `old` -> `new`."""
+        changed = command.replace(old, new)
+        assert changed != command, old
+        return (
+            lambda m: m.__setitem__("commands", [changed]),
+            lambda m: _cell(m, arms, seeds, extra=[f"##ARGS## {changed}"]),
+        )
+
+    # a listed command is still compared with the scenario: what ##CONFIG## carries too
+    edit, cell = with_command("--time=900", "--time=600")
+    case(
+        "##ARGS## contradicts a parameter ##CONFIG## carries",
+        "##ARGS## --time=600, the manifest's scenario paper-50n says time=900",
+        edit,
+        cell=cell,
+    )
+    edit, cell = with_command("--protocols=ara,aodv", "--protocols=ara,olsr")
+    case(
+        "##ARGS## protocols are not the arms",
+        "##ARGS## --protocols=ara,olsr, the manifest's scenario paper-50n has arms ara,aodv",
+        edit,
+        cell=cell,
+    )
+    edit, cell = with_command("--protocols=ara,aodv", "--protocols=aodv,ara")
+    case("##ARGS## protocols in another order", None, edit, cell=cell)
     # the directory and the files
     with tempfile.TemporaryDirectory() as root:
         run = _make_run(root, fresh(), _cell(fresh(), arms, seeds))

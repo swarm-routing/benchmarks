@@ -65,8 +65,8 @@ of a cell (a slice opens at each `##CONFIG## scenario=...` line; the
 
 | Manifest field | Compared with |
 |----------------|---------------|
-| `scenarios[].parameters` | each key the slice's `##CONFIG##` line carries has the same value there; a key it does not carry (`diag` today) is read from the slice's `##ARGS##` line, as `--key=value`, or `--key` for a `true` flag |
-| `scenarios[].arms` | the `protocols=` of `##CONFIG##` (in any order), and the arms of the `##RUN##` rows |
+| `scenarios[].parameters` | each key the slice's `##CONFIG##` line carries has the same value there; a key it does not carry (`diag` today) is read from the slice's `##ARGS##` line, as `--key=value`, or `--key` for a `true` flag; a key the `##ARGS##` line carries has the same value there too |
+| `scenarios[].arms` | the `protocols=` of `##CONFIG##` and the `--protocols=` of `##ARGS##` (in any order, where the line has one), and the arms of the `##RUN##` rows |
 | `harness.program` | the first word of each `##ARGS##` line |
 | `commands` | each `##ARGS##` line, whole, is one of them |
 | `seeds` | the `##RUN##` rows: every arm ran each seed once |
