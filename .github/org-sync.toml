@@ -1,5 +1,7 @@
 # org-sync configuration (swarm-routing/.github tools/org-sync).
 kind = "data"
+# the CI badge: the run validator's workflow (the default ci.yml does not exist here; swarm-routing/.github#415)
+ci_workflow = "runs.yml"
 title = "benchmarks"
 dual = ["tools/"]
 # CITATION.cff seed and cite badge (#39). The Zenodo concept (read from zenodo.org on 2026-11-11: v0.1.0 archived
