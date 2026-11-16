@@ -248,9 +248,15 @@ and preventive actions), and how: [docs/rcapa/README.md](docs/rcapa/README.md).
 
 What is planned and in progress here: the issues labelled [`epic`](https://github.com/swarm-routing/benchmarks/issues?q=label%3Aepic). An epic's open sub-issues carry a `priority:*` and a `model:*` label, so a contributor or an AI agent can pick one up ([how issues work](https://github.com/swarm-routing/.github/blob/main/CONTRIBUTING.md#issues)). The whole org's plan: the [roadmap](https://github.com/swarm-routing/.github/blob/main/ROADMAP.md#epics).
 
-| Epic | Status | Sub-issues closed |
-|------|--------|-------------------|
-| [#108](https://github.com/swarm-routing/benchmarks/issues/108) developer experience: a newcomer can build, test and contribute from the docs alone | In progress | 1 / 1 |
+No open epic: the work here is tracked as single issues.
+
+<details><summary>Closed: 1 epic</summary>
+
+| Epic | Closed |
+|------|--------|
+| [#108](https://github.com/swarm-routing/benchmarks/issues/108) developer experience: a newcomer can build, test and contribute from the docs alone | Done 2026-11-16 |
+
+</details>
 
 <!-- epics:end -->
 
