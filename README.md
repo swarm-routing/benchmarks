@@ -5,7 +5,7 @@
 | --- | --- |
 | Build | [![CI](https://github.com/swarm-routing/benchmarks/actions/workflows/runs.yml/badge.svg)](https://github.com/swarm-routing/benchmarks/actions/workflows/runs.yml) |
 | Release | [![Release](https://img.shields.io/github/v/release/swarm-routing/benchmarks?sort=semver&cacheSeconds=1800)](https://github.com/swarm-routing/benchmarks/releases) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24145189.svg)](https://doi.org/10.5281/zenodo.24145189) [![Cite](https://img.shields.io/badge/cite-CITATION.cff-blue)](CITATION.cff) [![Licence: GPL-2.0-only, tools/ MIT OR GPL-2.0-only](https://img.shields.io/badge/licence-GPL--2.0--only%2C%20tools%2F%20MIT%20OR%20GPL--2.0--only-blue)](LICENSING.md) |
-| Trust | [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/swarm-routing/benchmarks/badge)](https://scorecard.dev/viewer/?uri=github.com/swarm-routing/benchmarks) |
+| Trust | [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/swarm-routing/benchmarks/badge)](https://scorecard.dev/viewer/?uri=github.com/swarm-routing/benchmarks) [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/16819/badge)](https://www.bestpractices.dev/projects/16819) |
 | Community & docs | [![Colony Arena: benchmarks](https://img.shields.io/badge/Colony%20Arena-project%20page-orange)](https://swarm-routing.github.io/projects/benchmarks/) [![Open RCAPA](https://img.shields.io/github/issues/swarm-routing/benchmarks/rcapa?label=open%20RCAPA&color=blue)](https://github.com/swarm-routing/benchmarks/blob/main/docs/rcapa/README.md) [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow)](https://www.conventionalcommits.org) |
 <!-- org-sync:end badges -->
 
