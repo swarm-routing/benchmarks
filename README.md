@@ -248,7 +248,7 @@ What is planned and in progress here: the issues labelled [`epic`](https://githu
 
 | Epic | Status | Sub-issues closed |
 |------|--------|-------------------|
-| [#108](https://github.com/swarm-routing/benchmarks/issues/108) developer experience: a newcomer can build, test and contribute from the docs alone | Planned | 0 / 1 |
+| [#108](https://github.com/swarm-routing/benchmarks/issues/108) developer experience: a newcomer can build, test and contribute from the docs alone | In progress | 1 / 1 |
 
 <!-- epics:end -->
 
