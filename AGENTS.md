@@ -36,6 +36,9 @@ tools/release/                  the dataset release (#39): dist.sh (`make dist`:
 
 ## Build & verify
 
+The step-by-step version for people (prerequisites, every command, the CI
+map, troubleshooting) is [`docs/development.md`](docs/development.md).
+
 ```bash
 python3 -I tools/validate_run.py --self-test        # every check, on fixtures in a temp dir
 python3 -I tools/validate_run.py all                # every run under runs/
