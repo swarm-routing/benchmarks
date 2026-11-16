@@ -16,12 +16,14 @@ A **published release** of benchmarks is a `v*` tag: its GitHub release
 with the dataset tarball `benchmarks-<ver>.tar.gz` (`tools/release/dist.sh`),
 archived on Zenodo as a dataset (concept DOI
 [10.5281/zenodo.24145189](https://doi.org/10.5281/zenodo.24145189)). A
-regression is a released dataset or validator that is wrong where the release
-before it was right: a run that validated and no longer does, a manifest that
+regression is a released dataset or validator that is wrong where the last
+good release was right (a defect first shipped in one release and still in
+the next is the same regression, one ticket): a run that validated and no longer does, a manifest that
 names the wrong digest or commit, a verdict that does not recompute. Merged
 runs are immutable (golden rule 10), so the correction is a new run that
-names the one it supersedes, never an edit. A defect caught before the next
-tag needs no RCAPA.
+names the one it supersedes, never an edit. A defect introduced after the
+last tag and fixed before the next never reached a release and needs no
+RCAPA; a defect in a released version needs one whenever it is found.
 
 | | |
 |---|---|
@@ -30,7 +32,7 @@ tag needs no RCAPA.
 | Ticket | an issue in swarm-routing/benchmarks, form *Regression in a release (RCAPA)*, title `[rcapa] BEN-NNN <short description>`, labels `rcapa` and `bug` |
 | Verified by | `python3 -I tools/validate_run.py check runs/<dir>` (and `all`) at the failing tag and the last good one; the verdict recomputed with ns3-tools' readers (golden rule 12) |
 | Corrective action | a new run that supersedes the wrong one (golden rule 10), or a validator fix with a fixture in its self-test; then a release |
-| Preventive action | a validator check or self-test fixture that rejects the defect, so `runs.yml` refuses it on the PR |
+| Preventive action | a validator check or self-test fixture that rejects the defect in a new run, so `runs.yml` refuses it on the PR; the check exempts a run that a correction already supersedes (its `supersedes` entry), so the immutable bad run and `validate_run.py all` keep passing and the correction can still be released |
 | Closes when | the correction is merged **and** a `v*` release carries it (tag and version DOI read from Zenodo) |
 
 ```mermaid
