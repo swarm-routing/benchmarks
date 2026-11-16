@@ -52,6 +52,12 @@ dataset release tarball:
 make dist   # dist/benchmarks-<ver>.tar.gz, every run validated first
 ```
 
+`make dist` (`tools/release/dist.sh`) uses GNU `cp`, `find`, `xargs`, `tar`
+and `sha256sum`: it runs on Linux, as the release job does. On macOS install
+GNU coreutils, findutils and tar (`brew install coreutils findutils gnu-tar`)
+and put their `gnubin` directories first on `PATH`, or run it in `make
+shell`.
+
 ## Test
 
 | What | Command | CI (`runs.yml`, check `validate runs`) |
@@ -60,7 +66,7 @@ make dist   # dist/benchmarks-<ver>.tar.gz, every run validated first
 | the release notes script | `python3 -I tools/release/runs_notes.py --self-test` | yes |
 | the example manifest | `python3 -I tools/validate_run.py manifest schemas/examples/manifest.example.json` | yes |
 | every run validates | `python3 -I tools/validate_run.py all` | yes |
-| one run | `python3 -I tools/validate_run.py check runs/<date>-<campaign>` | (part of `all`) |
+| one run | `python3 -I tools/validate_run.py check runs/2026-11-10-anthocnet-aodv-smoke` (any directory under `runs/`) | (part of `all`) |
 | the legacy importer and every legacy cell | `python3 -I tools/import_anthocnet.py --self-test && python3 -I tools/validate_run.py legacy all` | yes |
 | no merged run changed | `git fetch origin main && python3 -I tools/validate_run.py immutable --base origin/main` | yes |
 | the same self-tests as plain test scripts, as the coverage run | `python3 tools/test_validate_run.py && python3 tools/test_import_anthocnet.py` (without `-I`: they import the tool beside them) | `quality / python` |
@@ -75,11 +81,11 @@ Adding a run, in short (the README "Adding a run" has the details):
 1. Pre-register the plan in an issue or a file.
 2. Run it with ns3-tools' `ns3-campaign` (`dispatch`, then `collect`), which
    pins every cell to one campaign image by digest.
-3. Copy the raw cell files, unedited, to `runs/<yyyy-mm-dd>-<campaign>/cells/`
-   and write `manifest.json` (the schema is
+3. Pick the run's directory, the date and the campaign name, for example
+   `RUN=runs/2026-11-20-ara-anchor`; copy the raw cell files, unedited, to
+   `$RUN/cells/` and write `manifest.json` (the schema is
    `schemas/manifest.schema.json`; `schemas/examples/` has a valid example).
-4. `python3 -I tools/validate_run.py check runs/<yyyy-mm-dd>-<campaign>` until
-   it prints `OK`.
+4. `python3 -I tools/validate_run.py check "$RUN"` until it prints `OK`.
 5. Open one PR per run, titled `feat(runs): ...`.
 
 A correction is a new run that names the one it supersedes, with an issue
@@ -122,7 +128,9 @@ merge queue, so a pull request is merged by enabling auto-merge.
 
 Releases follow the org procedure: [CONTRIBUTING "Cutting a release"](https://github.com/swarm-routing/.github/blob/main/CONTRIBUTING.md#cutting-a-release).
 Versions are SemVer: a run PR (`feat(runs): ...`) is a minor, a fix a patch,
-a manifest or marker `schema_version` change a major. When the issues of a
+a manifest or marker `schema_version` change a major. While the version is
+0.x (`major_version_zero = true` in `.cz.toml`), Commitizen turns that major
+into a minor bump. When the issues of a
 version's `release:vX.Y.Z` label are done, dispatch `release.yml` with mode
 `bump` and merge the bump PR; the release ships `benchmarks-<ver>.tar.gz`,
 and `tools/release/runs_notes.py` writes the runs it adds into
