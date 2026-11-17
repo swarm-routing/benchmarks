@@ -19,6 +19,7 @@ README's "Adding a run"; how issues and pull requests work is in the org's
 | Python | 3.11 or newer | the validator and its tests (standard library only) |
 | ruff | 0.17.1 | Python lint and format |
 | actionlint | 1.7.12 (`pip install actionlint-py==1.7.12.25`) | `make lint` |
+| Docker with its daemon running, or Go | Docker: any recent; Go: 1.27 (swarm-routing/.github `go.mod`) | `make headers`: the licence gate CI runs, from the ci-tools image, or built with `go` when docker is absent |
 
 Producing new benchmark numbers is not done here: runs are made with
 swarm-routing/ns3-tools (`ns3-campaign`) on the `ns3-dev` images and only
