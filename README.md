@@ -248,7 +248,9 @@ and preventive actions), and how: [docs/rcapa/README.md](docs/rcapa/README.md).
 
 What is planned and in progress here: the issues labelled [`epic`](https://github.com/swarm-routing/benchmarks/issues?q=label%3Aepic). An epic's open sub-issues carry a `priority:*` and a `model:*` label, so a contributor or an AI agent can pick one up ([how issues work](https://github.com/swarm-routing/.github/blob/main/CONTRIBUTING.md#issues)). The whole org's plan: the [roadmap](https://github.com/swarm-routing/.github/blob/main/ROADMAP.md#epics).
 
-No open epic: the work here is tracked as single issues.
+| Epic | Status | Sub-issues closed |
+|------|--------|-------------------|
+| [#145](https://github.com/swarm-routing/benchmarks/issues/145) Unified telemetry schema, cross-runtime parity runs, and UAV/WSN scenario profiles | Planned | no sub-issues yet |
 
 <details><summary>Closed: 1 epic</summary>
 
