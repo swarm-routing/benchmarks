@@ -72,6 +72,20 @@ jobs:
       tests: tools/test_*.py
       source: tools
 
+  # The Python coverage of the `quality` job to Codecov (report-only; GitHub
+  # OIDC, no stored token; swarm-routing/.github#635). Not in the merge queue:
+  # main's push uploads it.
+  codecov:
+    needs: quality
+    if: github.event_name != 'merge_group'
+    permissions:
+      contents: read
+      id-token: write
+    uses: swarm-routing/.github/.github/workflows/reusable-codecov.yml@main
+    with:
+      artifact: python-coverage
+      flags: python
+
   licence:
     uses: swarm-routing/.github/.github/workflows/reusable-licence-check.yml@main
     with:
