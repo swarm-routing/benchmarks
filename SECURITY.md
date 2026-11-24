@@ -12,7 +12,7 @@ tool: the parsers of files it reads. If nothing parses untrusted input, say
 so in one line. -->
 Contributed datasets. Each run's `manifest.json` pins the immutable
 `ns3-dev:<ver>-<profile>-<sha7>` image (verifiable with `cosign verify`, see
-swarm-routing/ns3-containers' `SECURITY.md`), each protocol's commit, the
+swarm-routing/sim-containers' `SECURITY.md`), each protocol's commit, the
 scenario, the seeds and the command. A dataset without a manifest is not
 merged; a merged run is immutable, and a correction is a new run.
 
@@ -52,4 +52,4 @@ best-effort basis: expect an acknowledgement within a few days, not an SLA.
   and than the commit the recorded run pins, which reject it):
   `python3 python/ns3_tool/bench_parse.py --proto anthocnet --vs aodv <benchmarks>/runs/2026-11-10-anthocnet-aodv-smoke/cells/grid-rwp.txt`.
 - **The image.** Check the image a manifest pins with `cosign verify`, as
-  ns3-containers' `SECURITY.md` describes.
+  sim-containers' `SECURITY.md` describes.
