@@ -66,7 +66,7 @@ jobs:
 
   quality:
     # ruff (org ruff.toml) + the self-test under coverage, report-only.
-    uses: swarm-routing/.github/.github/workflows/reusable-python-ci.yml@fba9e07e50d1a8c79f7d3e2d0a3dad2b11c91e19 # main@2026-11-25
+    uses: swarm-routing/.github/.github/workflows/reusable-python-ci.yml@10d9057fc3bcd21f39be701885929db4c056e6f8 # main@2026-11-25
     with:
       paths: tools
       tests: tools/test_*.py
@@ -81,13 +81,13 @@ jobs:
     permissions:
       contents: read
       id-token: write
-    uses: swarm-routing/.github/.github/workflows/reusable-codecov.yml@fba9e07e50d1a8c79f7d3e2d0a3dad2b11c91e19 # main@2026-11-25
+    uses: swarm-routing/.github/.github/workflows/reusable-codecov.yml@10d9057fc3bcd21f39be701885929db4c056e6f8 # main@2026-11-25
     with:
       artifact: python-coverage
       flags: python
 
   licence:
-    uses: swarm-routing/.github/.github/workflows/reusable-licence-check.yml@fba9e07e50d1a8c79f7d3e2d0a3dad2b11c91e19 # main@2026-11-25
+    uses: swarm-routing/.github/.github/workflows/reusable-licence-check.yml@10d9057fc3bcd21f39be701885929db4c056e6f8 # main@2026-11-25
     with:
       dual-roots: 'tools/'
       core-roots: ''
